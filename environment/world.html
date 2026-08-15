@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Geological World Canvas: Lycapoles Sector</title>
+  <style>
+    :root {
+      --neon-blue: #00f0ff;
+      --neon-magenta: #ff007f;
+      --matrix-green: #00ff66;
+    }
+    body {
+      background: #030307;
+      color: #fff;
+      font-family: 'Courier New', monospace;
+      margin: 0;
+      padding: 15px;
+      box-sizing: border-box;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    /* OBSERVATION DESK SCAFFOLDING */
+    .world-deck-card {
+      width: 100%;
+      max-width: 800px;
+      background: #0a0a14;
+      border: 2px solid var(--neon-blue);
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 0 30px rgba(0, 240, 255, 0.15);
+      box-sizing: border-box;
+    }
+    .panel-header {
+      border-bottom: 1px solid #1a1a2e;
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+    .panel-header h1 {
+      margin: 0;
+      font-size: 1.25rem;
+      color: var(--neon-blue);
+      text-shadow: 0 0 8px rgba(0, 240, 255, 0.3);
+      letter-spacing: 1px;
+    }
+    .grid-split-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+    @media (max-width: 700px) {
+      .grid-split-layout { grid-template-columns: 1fr; }
+    }
+    /* CANVAS FIELD VIEWPORT */
+    .canvas-viewport-frame {
+      background: #000;
+      border: 1px dashed var(--matrix-green);
+      border-radius: 6px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #worldGridCanvas {
+      background: #04040a;
+      border: 1px solid #111;
+      max-width: 100%;
+      box-shadow: 0 0 15px rgba(0, 255, 102, 0.05);
+    }
+    /* TELEMETRY TELETEXT CONSOLE */
+    .telemetry-teletext-box {
+      background: #020205;
+      border: 1px solid var(--neon-magenta);
+      border-radius: 6px;
+      padding: 15px;
+      font-size: 0.8rem;
+      line-height: 1.5;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .metric-row {
+      margin-bottom: 10px;
+      border-bottom: 1px dashed #151522;
+      padding-bottom: 4px;
+    }
+    .label-tag { color: #666; }
+    .val-tag { color: #fff; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <div class="world-deck-card">
+    <div class="panel-header">
+      <h1>GEOLOGICAL WORLD CANVAS // SECTOR: LYCAPOLES</h1>
+      <div style="font-size: 0.65rem; color: #555; margin-top: 4px; letter-spacing: 1px;">THEMATIC OBJECTIVE: UPLIFT THE AFRICAN SPIRIT MATRIX</div>
+    </div>
+
+    <div class="grid-split-layout">
+      <!-- LEFT COL: SPATIAL CANVAS OVERLAY -->
+      <div class="canvas-viewport-frame">
+        <div style="font-size: 0.75rem; color: var(--matrix-green); margin-bottom: 8px; font-weight: bold; letter-spacing: 1px;">[BLOCK TILES GRAPHIC GRID]</div>
+        <canvas id="worldGridCanvas" width="340" height="280"></canvas>
+        <div style="font-size: 0.6rem; color: #444; margin-top: 6px; text-align: center;">Origin Point (0,0) Locks to Regional Base Anchor Centers</div>
+      </div>
+
+      <!-- RIGHT COL: LIVE TELEMETRY TELETEXT READOUT -->
+      <div class="telemetry-teletext-box">
+        <div>
+          <h3 style="color: var(--neon-magenta); margin: 0 0 12px 0; font-size: 0.85rem; letter-spacing: 1px;">📋 SYSTEM CHRONO-TELEMETRY</h3>
+          
+          <div class="metric-row"><span class="label-tag">REGION ID :</span> <span class="val-tag">Secret Land 01</span></div>
+          <div class="metric-row"><span class="label-tag">CODENAME  :</span> <span class="val-tag" style="color: var(--neon-blue);">Lycapoles</span></div>
+          <div class="metric-row"><span class="label-tag">SECTORS   :</span> <span class="val-tag" style="font-size: 0.7rem;">Lydenburg, Cape Town, Colesberg</span></div>
+          <div class="metric-row"><span class="label-tag">MAP SCALE :</span> <span class="val-tag">17,380 Block Tiles Wide</span></div>
+          <div class="metric-row"><span class="label-tag">CLOCK MODE:</span> <span id="telemetryClockRatio" class="val-tag" style="color: #ffcc00; font-size: 0.7rem;">24 Mins = 1 Virtual Day</span></div>
+          <div class="metric-row"><span class="label-tag">SYSTEM DATE:</span> <span id="telemetryDateStamp" class="val-tag" style="color: var(--matrix-green);">00-00-02 (MM-DD-YY)</span></div>
+        </div>
+
+        <div style="font-size: 0.65rem; color: #444; text-align: center; border-top: 1px solid #111; padding-top: 8px;">
+          Asynchronous P2P Mesh Alignment Status: Optimal
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EMBED THE STANDALONE SPATIAL ENGINE SCRIPT -->
+  <script src="globe.js"></script>
+</body>
+</html>
