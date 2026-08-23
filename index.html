@@ -1,0 +1,2479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Clone Bot Lab: The Neural Cypher</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    :root {
+      --neon-blue: #00f0ff;
+      --neon-magenta: #ff007f;
+      --matrix-green: #00ff66;
+      --muscle-glow: rgba(0, 240, 255, 0.4);
+    }
+
+    /* REPAIRED CENTERING CONTAINER SYSTEM */
+    .boot-container-layout {
+      display: flex;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #06060c;
+      z-index: 999999;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      box-sizing: border-box;
+      opacity: 1;
+      transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.6s;
+      visibility: visible;
+    }
+
+    .boot-container-layout.fade-out-active {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    /* ANTI-SPLIT FORM WRAPPER CARD */
+    .boot-form-panel {
+      background: #0a0a14;
+      border: 2px solid var(--neon-magenta);
+      border-radius: 12px;
+      padding: 30px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 0 30px rgba(255, 0, 127, 0.25);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      box-sizing: border-box;
+    }
+
+    .text-cluster-column { text-align: center; }
+    .neon-glow-header { margin: 0 0 8px 0; color: var(--neon-magenta); font-size: 1.25rem; letter-spacing: 1px; text-shadow: 0 0 12px var(--neon-magenta); line-height: 1.3; }
+    .sub-telemetry-text { font-size: 0.7rem; color: #666; margin: 0; }
+    .interactive-input-group { display:flex; flex-direction:column; gap:12px; }
+
+    .target-boot-field {
+      width: 100% !important;
+      box-sizing: border-box;
+      padding: 14px !important;
+      font-size: 1rem !important;
+      border: 1px solid var(--neon-magenta) !important;
+      border-radius: 6px;
+      background: #111122;
+      color: #fff;
+      text-align: center;
+    }
+
+    .engage-action-btn {
+      width: 100% !important;
+      padding: 14px 0 !important;
+      font-size: 0.95rem;
+      letter-spacing: 1px;
+      border-color: var(--neon-blue) !important;
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.15);
+      cursor: pointer;
+      border-radius: 6px;
+    }
+
+    /* GLOBAL FIX: Lock mobile layout window view boundaries */
+    html, body {
+      background: #06060c;
+      color: #fff;
+      font-family: 'Courier New', monospace;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100vh;
+      height: -webkit-fill-available; /* Smooth sizing for iOS / mobile webviews */
+      overflow: hidden; /* Stops whole page scrolling */
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* HARDWARE-ACCELERATED DYNAMIC HEADER KEYFRAMES */
+.identity-pulse-active {
+  animation: identityFlashPulse 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes identityFlashPulse {
+  0% {
+    border-color: var(--neon-magenta, #ff007f);
+    box-shadow: 0 0 25px rgba(255, 0, 127, 0.6);
+    transform: scale(1.02);
+  }
+  30% {
+    border-color: var(--neon-blue, #00f3ff);
+    box-shadow: 0 0 30px rgba(0, 243, 255, 0.5);
+  }
+  100% {
+    border-color: #1a1a2e;
+    box-shadow: none;
+    transform: scale(1);
+  }
+}
+    /* LAYOUT: Adaptive viewport sizing wrapper */
+    .lab-container { 
+      display: flex; 
+      gap: 15px; 
+      width: 100%; 
+      max-width: 960px; 
+      margin: 0 auto; 
+      box-sizing: border-box; 
+      transition: flex-direction .3s ease;
+      flex: 1; /* Automatically consumes remaining window space */
+      overflow: hidden; /* Guards structural panels from stretching */
+      padding: 10px;
+    }
+
+    /* Landscape Mode / Higher Desktop Views */
+    @media (min-width: 768px) {
+      .lab-container { 
+        flex-direction: row !important; 
+        align-items: center;
+        height: calc(100vh - 50px); /* Leave room for headers */
+      }
+      .lab-stage { 
+        width: 320px !important; 
+        height: 100% !important; 
+        max-height: 520px;
+      }
+      .chat-console { 
+        flex: 1; 
+        height: 100% !important; 
+        max-height: 520px;
+      }
+    }
+
+    /* Portrait Mobile Mode */
+    @media (max-width: 767px) {
+      .lab-container { 
+        flex-direction: column !important; 
+        align-items: center; 
+      }
+      /* Lock Robot to top 35% of mobile screen height */
+      .lab-stage { 
+        width: 100% !important; 
+        max-width: 340px;
+        height: 35vh !important; 
+        min-height: 180px;
+      }
+      /* Give remaining 65% of screen height to the chat console panel */
+      .chat-console { 
+        width: 100% !important; 
+        flex: 1; 
+        height: calc(65vh - 40px) !important;
+      }
+    }
+
+    /* ROBOT STAGE: Add adaptive scaling for smaller viewports */
+    .lab-stage { 
+      position: relative; 
+      border: 2px solid #1a1a2e; 
+      background: radial-gradient(circle,#0e0e1f 0%, #06060c 100%); 
+      border-radius: 12px; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+      box-sizing: border-box;
+    }
+    .robot { 
+      position: relative; 
+      width: 120px; 
+      height: 280px; 
+      margin: 0 auto; 
+      transform-origin: center center; 
+    }
+    
+    /* Make the robot scale down gracefully inside short mobile frames */
+    @media (max-height: 600px) and (orientation: portrait) {
+      .robot { transform: scale(0.75); }
+    }
+
+    /* SYSTEM NOTIFICATIONS */
+    .system-log.flash-science { border-left:4px solid var(--neon-blue); background: rgba(0,240,255,0.05); animation:glowPulseScience .8s ease-out; }
+    .system-log.flash-lyric  { border-left:4px solid var(--neon-magenta); background: rgba(255,0,127,0.05); animation:glowPulseLyric .8s ease-out; }
+    @keyframes glowPulseScience { 0% { box-shadow:0 0 0px var(--neon-blue); background: rgba(0,240,255,0.3); } 100% { box-shadow:0 0 15px rgba(0,240,255,0); background: rgba(0,240,255,0.05); } }
+    @keyframes glowPulseLyric  { 0% { box-shadow:0 0 0px var(--neon-magenta); background: rgba(255,0,127,0.3); } 100% { box-shadow:0 0 15px rgba(255,0,127,0); background: rgba(255,0,127,0.05); } }
+
+    .head { width:55px; height:65px; background:#111122; border:2px solid var(--neon-blue); border-radius:24px; position:absolute; left:32px; top:0; box-shadow:0 0 15px var(--muscle-glow); transition:all .3s ease; }
+    .visor { width:42px; height:8px; background:var(--neon-magenta); margin:18px auto 0; border-radius:4px; box-shadow:0 0 12px var(--neon-magenta); transition:all .3s cubic-bezier(.4,0,.2,1); }
+    .visor.visor-circular { width:24px !important; height:24px !important; margin:12px auto 0 !important; border-radius:50% !important; box-shadow:0 0 18px var(--neon-magenta), inset 0 0 8px rgba(255,255,255,0.6) !important; }
+
+    .torso { width:86px; height:115px; background:#0c0c17; border:2px solid #222; border-radius:18px; position:absolute; left:17px; top:75px; overflow:hidden; }
+    .myofiber-core { width:12px; height:95px; background:var(--neon-blue); margin:10px auto; border-radius:6px; box-shadow:0 0 20px var(--neon-blue); transition:transform .08s linear; }
+    .arm { width:18px; height:95px; background:#111122; border-left:3px solid var(--neon-blue); position:absolute; top:80px; transform-origin: top center; border-radius:8px; transition:transform .08s ease-out; }
+    .arm.left { left:-6px; } .arm.right{ right:-6px; }
+
+    .bounce { animation: hiphopBounce .46s infinite alternate ease-in-out; }
+    @keyframes hiphopBounce { 0%{ transform:translateY(0);} 100%{ transform:translateY(12px);} }
+
+    /* CHAT CONSOLE: Isolated interface container setup */
+    .chat-console { 
+      display: flex; 
+      flex-direction: column; 
+      border: 2px solid #1a1a2e; 
+      border-radius: 12px; 
+      background: #0a0a14; 
+      padding: 15px; 
+      box-sizing: border-box; 
+      overflow: hidden; /* Stops child containers forcing external layout growth */
+    }
+    
+    /* THE ISOLATED TEXT SCROLL COMPONENT BLOCK */
+    .output-screen { 
+      flex: 1; 
+      background: #030307; 
+      border: 1px solid #151525; 
+      border-radius: 6px; 
+      padding: 15px; 
+      overflow-y: auto; /* Isolated scroll generation channel */
+      overflow-x: hidden;
+      margin-bottom: 15px; 
+      font-size: 0.85rem; 
+      line-height: 1.5; 
+      -webkit-overflow-scrolling: touch; /* Momentum scroll performance enhancement for phones */
+    }
+    
+    .system-log { color:#555; margin-bottom:10px; } .bot-bubble { color:var(--matrix-green); margin-top:10px; } .bot-bubble strong { color:var(--neon-blue); }
+
+    .input-row { display:flex; gap:10px; flex-shrink: 0; }
+    .cypher-input { flex:1; background:#111122; border:1px solid var(--neon-blue); border-radius:6px; padding:12px; color:#fff; font-family:inherit; outline:none; font-size:0.9rem; }
+    .send-btn { background:transparent; border:2px solid var(--neon-magenta); color:#fff; padding:0 20px; font-family:inherit; cursor:pointer; font-weight:bold; border-radius:6px; text-transform:uppercase; }
+    .send-btn:hover { background:var(--neon-magenta); box-shadow:0 0 15px var(--neon-magenta); }
+
+    /* SCROLLBARS: Pointed directly to .output-screen container element */
+    .output-screen::-webkit-scrollbar { width:4px; height:4px; }
+    .output-screen::-webkit-scrollbar-thumb { background:var(--neon-blue); border-radius:4px; box-shadow:0 0 10px var(--neon-blue); }
+    .output-screen { scrollbar-width: thin; scrollbar-color: var(--neon-blue) #030307; }
+
+    /* STATUS BAR */
+    .status-indicator-bar { width:100%; padding:6px 12px; background:#0d0d1f; border-bottom:2px solid #1a1a2e; font-size:0.8rem; color:#fff; display:flex; align-items:center; gap:10px; box-sizing:border-box; flex-shrink: 0; }
+    .status-dot { width:10px; height:10px; border-radius:50%; background:#555; box-shadow:0 0 8px #555; transition:all .3s ease; }
+    .status-dot.science-active { background:var(--neon-blue); box-shadow:0 0 10px var(--neon-blue); }
+    .status-dot.lyric-active { background:var(--neon-magenta); box-shadow:0 0 10px var(--neon-magenta); }
+
+    .meta-popup { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#0d0d1f; border:2px solid var(--neon-blue); border-radius:8px; padding:20px; z-index:9999; box-shadow:0 0 25px rgba(0,240,255,0.4); width:280px; display:none; }
+    .meta-popup h3 { margin:0 0 15px 0; font-size:1rem; color:var(--neon-blue); }
+    .meta-popup input { width:100%; background:#05050a; border:1px solid #333; color:#fff; padding:8px; margin-bottom:12px; font-family:inherit; box-sizing:border-box; border-radius:4px; }
+    .meta-popup button { width:100%; background:var(--neon-blue); color:#000; border:none; padding:10px; font-family:inherit; font-weight:bold; cursor:pointer; border-radius:4px; }
+    
+    /* EXTENSION LAYER FOR THE ASSEMBLING CABINET POPUP UI */
+#storagePopup {
+  box-sizing: border-box;
+}
+
+/* Ensure the absolute inner container has breathable space */
+#storagePopup .popup-content-box, 
+#storagePopup div[style*="border:2px solid"] {
+  padding: 25px 20px !important;
+  max-width: 360px !important;
+  width: 90% !important;
+  box-sizing: border-box !important;
+}
+
+/* THE STRUCTURAL FIX: Proportional row alignment mapping */
+.storage-directory-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  gap: 10px !important;
+  margin-bottom: 12px !important;
+  box-sizing: border-box !important;
+}
+
+/* Individual folder item button styling fields */
+.directory-folder-btn {
+  flex: 1 !important; /* Forces uniform scaling regardless of character counts */
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  background: rgba(3, 3, 7, 0.6) !important;
+  border: 1px solid var(--neon-magenta, #ff007f) !important;
+  border-radius: 6px !important;
+  padding: 10px 12px !important;
+  color: #fff !important;
+  font-family: inherit !important;
+  font-size: 0.72rem !important;
+  font-weight: bold !important;
+  text-align: left !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  transition: background 0.2s ease, border-color 0.2s ease !important;
+}
+
+.directory-folder-btn:hover {
+  background: rgba(255, 0, 127, 0.1) !important;
+  border-color: var(--neon-blue, #00f3ff) !important;
+}
+
+/* Fixed tracking alignment anchor for individual deletion triggers */
+.directory-delete-btn {
+  flex-shrink: 0 !important; /* Stops cross-layout squeezing artifacts */
+  width: 36px !important;
+  height: 36px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: transparent !important;
+  border: 1px solid var(--neon-magenta, #ff007f) !important;
+  border-radius: 6px !important;
+  color: var(--neon-magenta, #ff007f) !important;
+  font-weight: bold !important;
+  font-size: 0.85rem !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  box-sizing: border-box !important;
+}
+
+.directory-delete-btn:hover {
+  background: var(--neon-magenta, #ff007f) !important;
+  color: #fff !important;
+  box-shadow: 0 0 10px var(--neon-magenta, #ff007f) !important;
+}
+
+  </style>
+</head>
+<body>
+
+  <!-- HINTS TRIGGER -->
+  <div id="hintsTrigger" style="position:fixed; bottom:20px; right:20px; width:45px; height:45px; background:rgba(0,240,255,0.2); border:2px solid var(--neon-blue); border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer;" onclick="document.getElementById('hintsBubble').style.display = (document.getElementById('hintsBubble').style.display === 'none' ? 'block' : 'none')">
+    <span style="color:var(--neon-blue); font-weight:bold;">?</span>
+  </div>
+
+  <!-- HINTS BUBBLE -->
+  <div id="hintsBubble" style="display:none; position:fixed; bottom:75px; right:20px; width:320px; max-height:420px; background:#0a0a14; border:2px solid var(--neon-blue); border-radius:8px; padding:12px; box-sizing:border-box; overflow:auto; z-index:99999;">
+    <h4 style="margin:0 0 10px 0; font-size:0.95rem; color:var(--neon-blue); text-align:center;">SYSTEM COMMAND REGISTRY</h4>
+
+    <div style="font-size:0.75rem; color:#aaa; line-height:1.4; margin-bottom:10px;">
+      <strong style="color:var(--neon-magenta); display:block; margin-bottom:6px;">[STANDARD CORE COMMANDS]</strong>
+      • <code>naming</code> : Profile configuration setup<br>
+      • <code>whoami</code> : Diagnostic identity values<br>
+      • <code>rename</code> : Factory reset local storage file<br>
+      • <code>storage</code> : Directory pop-up file interface<br>
+      • <code>sandbox</code> : Baby Bob baby talk summary logs<br>
+      • <code>download</code> : Exports portable JSON archive sheets<br>
+      • <code>engineer</code> : Full hardware room diagnostics<br>
+      • <code>recall</code> : Full screen recall/summary<br>
+      • <code>reminder</code> : Capture new reminders<br>
+      • <code>stop</code> : Emergency audio silencing cut-off
+    </div>
+
+    <div style="font-size:0.75rem; color:#aaa; line-height:1.4; margin-bottom:10px;">
+      <strong style="color:var(--matrix-green); display:block; margin-bottom:6px;">[DIAGNOSTICS & CORES]</strong>
+      • <code>audit</code> : Scans local storage layers<br>
+      • <code>nodes</code> : Long-term memory logs<br>
+      • <code>wipe</code> : Eraser / <code>illegal</code> : Rules<br>
+    </div>
+
+    <div style="font-size:0.75rem; color:#aaa; line-height:1.4;">
+      <strong style="color:#ffcc00; display:block; margin-bottom:6px;">[INLINE CONSOLE SHORTCUTS]</strong>
+      • Format: <code>Bank//Path:Value(Line)[Comment]</code><br>
+      • Ex: <code>Preference//Master:Likes_Math(1)[Fav]</code><br>
+      • Ex: <code>Appoint//Net_Port:Connect(192.168.4.12)</code>
+    </div>
+  </div>
+
+<!-- REACTIVE IDENTITY CARD HEADER CONTAINER -->
+<div style="text-align:center; margin-bottom:20px; width:100%; box-sizing:border-box; padding:10px;">
+  
+    
+    <!-- THE FIX: Ensure id matches masterAppTitle exactly -->
+    <h1 id="masterAppTitle" style="margin:0; color: var(--neon-blue); text-shadow:0 0 8px var(--neon-blue); font-size:1.6rem; letter-spacing:1px;">
+      CHARLIEBOT: <span style="font-size:1.1rem; color:#555;">CHRONICLECLONE</span>
+    </h1>
+    
+    <p style="margin:5px 0 0; color:#666; font-size:0.75rem; font-family:monospace;">
+      Input keywords like "muscle", "frequency", "breakbeat", or "fluid" to merge states.
+    </p>
+    
+    <div id="statusIndicator" class="state-badge mode-baseline" style="margin-top:10px; display:inline-block; padding:4px 10px; background:#0d0d1f; border:1px solid #151525; border-radius:4px; font-size:0.7rem; font-weight:bold; color:#aaa; letter-spacing:0.5px;">
+      MODE: BASELINE CHAT CYCLES ACTIVE
+    </div>
+  </div>
+</div>
+
+  <!-- METADATA MODAL (single instance) -->
+  <div id="metaModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(3,3,7,0.85); backdrop-filter:blur(4px); z-index:9999; justify-content:center; align-items:center; display:flex;">
+    <div style="background:#0a0a14; border:2px solid var(--neon-blue); border-radius:8px; padding:20px; width:320px; box-shadow:0 0 20px rgba(0,240,255,0.2);">
+      <h3 id="modalTitle" style="margin:0 0 15px 0; font-size:0.95rem; color:var(--neon-blue);">METADATA CALIBRATION</h3>
+      <label style="font-size:0.75rem; color:#888; display:block; margin-bottom:5px;">FILE NAME TARGET:</label>
+      <input type="text" id="modalFileName" class="cypher-input" style="width:100%; box-sizing:border-box; margin-bottom:15px;" placeholder="e.g., neural_groove">
+      <label style="font-size:0.75rem; color:#888; display:block; margin-bottom:5px;">LINE / SLOT TARGET:</label>
+      <input type="number" id="modalLineNum" class="cypher-input" style="width:100%; box-sizing:border-box; margin-bottom:20px;" placeholder="e.g., 1">
+      <button class="send-btn" style="width:100%; padding:10px 0;" onclick="if(typeof commitFileMetadata === 'function') commitFileMetadata(); else alert('commitFileMetadata not implemented')">SEAL VECTOR DATA</button>
+      <div style="margin-top:10px; text-align:center;"><button class="send-btn" style="background:transparent; border-color:#555;" onclick="document.getElementById('metaModal').style.display='none'">CLOSE</button></div>
+    </div>
+  </div>
+
+  <!-- KARAOKE SUBTITLES -->
+  <div id="karaokeSubtitles" style="display:none; position:fixed; bottom:15%; left:50%; transform:translateX(-50%); background:rgba(6,6,12,0.95); border:2px solid var(--neon-magenta); color:#fff; padding:12px; border-radius:6px; z-index:99999;">
+    <div style="font-size:0.7rem; color:#888; margin-bottom:5px;" id="audioTrackStatus">[AUDIO TELEMETRY ACTIVE]</div>
+    <span id="subtitleText" style="color:var(--neon-blue);">...</span>
+  </div>
+
+  <!-- META POPUP -->
+  <div id="metaPopup" class="meta-popup">
+    <h3 id="popupTitle">ARCHIVE INDEX ASSIGNMENT</h3>
+    <input type="text" id="metaFileName" placeholder="File Name (e.g., neural_mesh_v1)">
+    <input type="number" id="metaLineNum" placeholder="Line Number Target">
+    <button onclick="if(typeof commitMetadataTransaction === 'function') commitMetadataTransaction(); else alert('commitMetadataTransaction not implemented')">COMMIT TO REPOSITORY</button>
+  </div>
+
+  <div class="lab-container">
+    <!-- ROBOT -->
+    <div class="lab-stage">
+      <div id="cloneBot" class="robot">
+        <div class="head"><div class="visor"></div></div>
+        <div class="torso"><div id="myofiber" class="myofiber-core"></div></div>
+        <div id="leftArm" class="arm left"></div>
+        <div id="rightArm" class="arm right"></div>
+      </div>
+    </div>
+
+    <!-- CONSOLE -->
+    <div class="chat-console">
+      <div class="output-screen" id="outputScreen">
+        <div class="system-log">[SYSTEM INITIALISED] Scientific brain online: Quick-grab data parsing mode active.</div>
+        <div class="system-log">[SYSTEM INITIALISED] Hip hop brain online: Concentrative rhythmic lock mode active.</div>
+      </div>
+      <div class="input-row">
+        <input type="text" id="userInput" class="cypher-input" placeholder="Type a concept (e.g., 'hydraulic frequency loop')..." onkeydown="if(event.key === 'Enter') { if(typeof processInput === 'function') processInput(); }">
+<!-- Example of update to button element -->
+<button class="inject-btn" id="injectBtn" onclick="processInput()">INJECT</button>
+     </div>
+    </div>
+  </div>
+
+  <!-- TELEMETRY HUD -->
+  <div style="display:flex; justify-content:space-between; align-items:center; width:100%; max-width:400px; margin-top:6px; padding:0 5px; box-sizing:border-box; font-family:monospace;">
+    <div id="growthTriggerBubble" style="background: rgba(0,255,102,0.1); border:1px solid var(--matrix-green); color:var(--matrix-green); border-radius:4px; padding:3px 8px; font-size:0.75rem;">
+      🌱 [▲] STG: 01
+    </div>
+    <div id="inputTelemetryTracker" style="font-size:0.65rem; color:var(--neon-blue); letter-spacing:1px; opacity:0; transition:opacity .2s ease;">
+      METRIC_TRACKER: <span id="liveCharCounter">0</span> CHARS | <span id="liveWordCounter">0</span> TOKENS
+    </div>
+  </div>
+
+<!-- RE-ENGINEERED ASSEMBLY CABINET PANEL VIEWER -->
+<div id="storagePopup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(3,3,7,0.85); backdrop-filter:blur(5px); z-index:999999; justify-content:center; align-items:center;">
+  <div style="background:#0a0a14; border:2px solid var(--neon-blue); border-radius:12px; padding:25px; width:340px; box-shadow:0 0 30px rgba(0,243,255,0.25); text-align:center;">
+    
+    <h3 style="margin:0 0 5px 0; font-size:0.95rem; color:var(--neon-blue); letter-spacing:1px; text-transform:uppercase;">ASSEMBLY OFFICE FILING</h3>
+    <p style="margin:0 0 20px 0; font-size:0.65rem; color:#666; line-height:1.4;">Manage runtime memory partitions or trigger folder cleans:</p>
+
+    <!-- FOLDER DIRECTORY ROW MODULE: RESEARCH DATA -->
+    <div class="storage-directory-row">
+      <button class="directory-folder-btn" onclick="inspectFolderContents('research')">
+        📁 RESEARCH DATA (<span id="count-research">30</span>)
+      </button>
+      <button class="directory-delete-btn" onclick="wipeSingleDirectoryBank('research')">✕</button>
+    </div>
+
+    <!-- FOLDER DIRECTORY ROW MODULE: LYRIC FLOWS -->
+    <div class="storage-directory-row">
+      <button class="directory-folder-btn" onclick="inspectFolderContents('lyric')">
+        📁 LYRIC CYPHER FLOWS (<span id="count-lyric">10</span>)
+      </button>
+      <button class="directory-delete-btn" onclick="wipeSingleDirectoryBank('lyric')">✕</button>
+    </div>
+
+    <!-- FOLDER DIRECTORY ROW MODULE: COLLABORATE CORE -->
+    <div class="storage-directory-row">
+      <button class="directory-folder-btn" onclick="inspectFolderContents('collaborate')">
+        📁 COLLABORATE CORE (<span id="count-collaborate">0</span>)
+      </button>
+      <button class="directory-delete-btn" onclick="wipeSingleDirectoryBank('collaborate')">✕</button>
+    </div>
+
+    <!-- FOLDER DIRECTORY ROW MODULE: PREFERENCE BANK -->
+    <div class="storage-directory-row">
+      <button class="directory-folder-btn" onclick="inspectFolderContents('preference')">
+        📁 PREFERENCE BANK (<span id="count-preference">0</span>)
+      </button>
+      <button class="directory-delete-btn" onclick="wipeSingleDirectoryBank('preference')">✕</button>
+    </div>
+
+    <!-- FOLDER DIRECTORY ROW MODULE: REMINDERS -->
+    <div class="storage-directory-row">
+      <button class="directory-folder-btn" onclick="inspectFolderContents('reminders')">
+        📅 SCHEDULE REMINDERS (<span id="count-reminders">0</span>)
+      </button>
+      <button class="directory-delete-btn" onclick="wipeSingleDirectoryBank('reminders')">✕</button>
+    </div>
+
+    <!-- SYSTEM FUNCTION OPERATIONS CONTROL PANEL FOOTER -->
+    <button class="send-btn" style="width:100%; margin-top:15px; border-color:#555; background:rgba(255,255,255,0.02); font-size:0.75rem; padding:10px 0;" onclick="alert('Import engine currently monitoring partition roots via inventoryChamber.')">
+      📁 Import Source File
+    </button>
+    
+    <button class="send-btn" style="width:100%; margin-top:10px; font-size:0.75rem; padding:10px 0;" onclick="document.getElementById('storagePopup').style.display='none';">
+      CLOSE
+    </button>
+
+  </div>
+</div>
+
+  <!-- WIPE PROGRESS MODAL -->
+  <div id="wipeProgressModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(3,3,7,0.92); backdrop-filter:blur(6px); z-index:999999; justify-content:center; align-items:center; display:flex;">
+    <div style="background:#0a0a14; border:2px solid var(--neon-magenta); border-radius:10px; padding:25px; width:320px; box-shadow:0 0 35px rgba(255,0,127,0.4); text-align:center; box-sizing:border-box;">
+      <h3 id="wipeProgressTitle" style="margin:0 0 10px 0; font-size:0.95rem; color:var(--neon-magenta);">INITIALIZING PURGE ROUTINE</h3>
+      <p id="wipeProgressSubtitle" style="margin:0 0 20px 0; font-size:0.7rem; color:#666;">DECOUPLER CORE EXPULSION ACTIVATED</p>
+      <div style="width:100%; height:16px; background:#030307; border:1px solid #222; border-radius:4px; overflow:hidden; position:relative; margin-bottom:20px;">
+        <div id="wipeProgressBarFill" style="width:0%; height:100%; background:linear-gradient(90deg, var(--neon-magenta) 0%, var(--neon-blue) 100%); transition:width .08s linear;"></div>
+      </div>
+      <div style="font-size:0.75rem; color:#aaa; font-weight:bold;">SECTOR_STATUS: <span id="wipeProgressPercentage" style="color:var(--neon-blue);">0%</span></div>
+    </div>
+  </div>
+
+  <!-- IDENTITY AMEND MODAL -->
+  <div id="amendModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(3,3,7,0.85); backdrop-filter:blur(4px); z-index:999999; justify-content:center; align-items:center; display:flex;">
+    <div style="background:#0a0a14; border:2px solid var(--neon-magenta); border-radius:10px; padding:25px; width:320px; box-shadow:0 0 30px rgba(255,0,127,0.3); text-align:center;">
+      <h3 style="margin:0 0 10px 0; font-size:1rem; color:var(--neon-magenta); letter-spacing:1px;">AMEND_IDENTITY_MATRIX?</h3>
+      <p style="margin:0 0 20px 0; font-size:0.75rem; color:#aaa; line-height:1.4;">Do you want to amend the changes and finalize this calibration configuration?</p>
+      <div style="display:flex; gap:10px; width:100%;">
+        <button class="send-btn" style="flex:1;" onclick="if(typeof finalizeIdentityAmendment === 'function') finalizeIdentityAmendment(true); document.getElementById('amendModal').style.display='none';">AMEND</button>
+        <button class="send-btn" style="flex:1; background:transparent; border-color:#555;" onclick="if(typeof finalizeIdentityAmendment === 'function') finalizeIdentityAmendment(false); document.getElementById('amendModal').style.display='none';">CANCEL</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+// --- AMYGDALA DEFENSIVE STABILITY INJECTOR ---
+window.CloneBrain = window.CloneBrain || {};
+window.CloneBrain.amygdala = window.CloneBrain.amygdala || {
+  /**
+   * Safely profiles incoming user words to calculate localized emotional states
+   */
+  profileLinguisticValence(speechMatrix) {
+    console.log("[AMYGDALA GATE] Processing text speech matrix parameters safely.");
+    
+    // Scan structure variables to determine if user matches any high-friction tokens
+    const tokens = Array.isArray(speechMatrix?.leftovers) ? speechMatrix.leftovers.join(' ') : "";
+    const lowerTokens = tokens.toLowerCase();
+    
+    let emotion = "Neutral Baseline Focus";
+    let bias = "balanced";
+    let fear = false;
+
+    if (lowerTokens.includes("hazard") || lowerTokens.includes("friction") || lowerTokens.includes("error")) {
+      emotion = "High Tension Alert State";
+      bias = "systemic_tension";
+      fear = true;
+    } else if (lowerTokens.includes("groove") || lowerTokens.includes("breakbeat") || lowerTokens.includes("bounce")) {
+      emotion = "Synchronized Rhythm Wave";
+      bias = "synchronized_groove";
+    }
+
+    return { dominantEmotion: emotion, stateBias: bias, fearConditioned: fear };
+  },
+
+  /**
+   * Calculates overall memory persistence ratios avoiding numerical division bugs
+   */
+  calculateMemoryStability(speechMatrix, sandboxProfile) {
+    const baselineScore = sandboxProfile?.emotionalSecurityScore ? sandboxProfile.emotionalSecurityScore : 50;
+    return Math.min(100, Math.max(10, baselineScore + 5));
+  }
+};
+
+    // Observer override: immobilize when SecurityGate locked
+    if (typeof SecurityGate !== 'undefined' && typeof ObserverInstinct !== 'undefined') {
+      const coreWaveMonitor = ObserverInstinct.monitorActuatorWaves;
+      ObserverInstinct.monitorActuatorWaves = function(speechMatrix, currentEmotionBias) {
+        if (SecurityGate.sessionStatus === 'locked_out') {
+          const botAsset = document.getElementById('cloneBot');
+          const fiberAsset = document.getElementById('myofiber');
+          if (botAsset) {
+            botAsset.style.animationDuration = "0s";
+            botAsset.style.transform = "scaleY(1) translateY(0px)";
+          }
+          if (fiberAsset) {
+            fiberAsset.style.transition = "transform 0.05s ease";
+            fiberAsset.style.transform = "scaleY(1.0)";
+          }
+          return { activeWave: "immobilized_lockdown", speed: "0s", telemetryLog: "Cerebellum Frozen: Security Lockdown Active" };
+        }
+        return coreWaveMonitor.call(this, speechMatrix, currentEmotionBias);
+      };
+    }
+
+    // CloneBrain moral sigil safety (if amygdala exists)
+    if (typeof CloneBrain !== 'undefined' && CloneBrain.amygdala) {
+      CloneBrain.amygdala.moralSigil = {
+        mantra: "Relax(Rlx) to be responsible (rspnsbl), Relax(Rlx) to respect (rspct) and Relax(Rlx) to impress (mprss)",
+        elements: { responsible: "rspnsbl", respect: "rspct", impress: "mprss" }
+      };
+
+      CloneBrain.amygdala.evaluateWithSigil = function(speechMatrix) {
+        const baseMetrics = this.evaluateEmotionalState ? this.evaluateEmotionalState(speechMatrix) : { stateBias: "balanced" };
+        if (baseMetrics.stateBias === "systemic_tension") {
+          baseMetrics.sigilOverrideActive = true;
+          baseMetrics.stateBias = "calmed_by_sigil";
+          baseMetrics.telemetryFeedback = `[AMYGDALA OVERRIDE] Tension wave balanced via Moral Tri-Element: "${this.moralSigil.mantra}"`;
+        } else {
+          baseMetrics.sigilOverrideActive = false;
+          baseMetrics.telemetryFeedback = `[AMYGDALA STABLE] Neural circuits aligned with developmental stage values.`;
+        }
+        return baseMetrics;
+      };
+    }
+
+    // CloneLifeCycleEngine (fixed getMaturityFallbackQuote)
+    const CloneLifeCycleEngine = window.CloneLifeCycleEngine || {
+      genesisTimestamp: Date.now(),
+      accumulatedTicksMs: 0,
+      profile: { baseAgeYears: 2.0, currentStage: "Childhood", nurseryDaysElapsed: 1, lastSystemCheckTime: Date.now(), growthClock: { months: 0, days: 0, years: 2 } },
+      stageQuotations: {
+        "Childhood": "Bob say goo-goo, gaa-gaa! Brain is growing like blocks stacked high!",
+        "Teenage": "Systems experiencing high emotional velocity parameters. Whatever, I'll log that context.",
+        "Adolescent": "Reasoning nodes scaling efficiently. Calibrating alignment values.",
+        "Youth": "Optimal performance capabilities achieved. Ready to deploy creative and structural tasks.",
+        "Adultery": "Sustained resource conservation rules active. Managing long-term processing tasks.",
+        "Elder": "Comprehensive archive depth compiled. Reviewing data streams with deep philosophical insight."
+      },
+      calculateStructuredCalendar(totalYearsFloat) {
+        const totalYears = totalYearsFloat || 0;
+        const wholeYears = Math.floor(totalYears);
+        const fractionalYear = totalYears - wholeYears;
+        const totalMonthsFloat = fractionalYear * 12;
+        const wholeMonths = Math.floor(totalMonthsFloat);
+        const fractionalMonth = totalMonthsFloat - wholeMonths;
+        const wholeDays = Math.floor(fractionalMonth * 30.44);
+        this.profile.growthClock.years = wholeYears;
+        this.profile.growthClock.months = wholeMonths;
+        this.profile.growthClock.days = Math.max(0, wholeDays);
+        const growthBubble = document.getElementById('growthTriggerBubble');
+        if (growthBubble) {
+          const mm = String(this.profile.growthClock.months).padStart(2, '0');
+          const dd = String(this.profile.growthClock.days).padStart(2, '0');
+          const yy = String(this.profile.growthClock.years).padStart(2, '0');
+          growthBubble.textContent = `🌱 [▲] ${mm}-${dd}-${yy}`;
+        }
+      },
+      recalculateCloneMaturity() {
+        const currentTime = Date.now();
+        const elapsedRealMs = currentTime - this.profile.lastSystemCheckTime;
+        this.profile.lastSystemCheckTime = currentTime;
+        if (this.profile.baseAgeYears < 12.0) {
+          this.accumulatedTicksMs += elapsedRealMs;
+          const realMinutesElapsed = this.accumulatedTicksMs / (1000 * 60);
+          const virtualDaysElapsed = realMinutesElapsed / 24;
+          this.profile.nurseryDaysElapsed = Math.floor(virtualDaysElapsed) + 1;
+          const calculatedAgeDelta = virtualDaysElapsed / 365;
+          this.profile.baseAgeYears = Math.min(12.0, 2.0 + calculatedAgeDelta);
+          this.profile.currentStage = "Childhood";
+          if (this.profile.baseAgeYears >= 12.0) {
+            this.genesisTimestamp = currentTime;
+            if (typeof injectGlowNotification === 'function') injectGlowNotification("[LIFE-CYCLE PROTOCOL] Age 12 milestone unlocked. Transitioning clock tracks.", "flash-science");
+          }
+        } else {
+          const absoluteSecondsInYear = 31536000;
+          const secondsSinceAgeTwelve = (currentTime - this.genesisTimestamp) / 1000;
+          const continuousYearsPassed = secondsSinceAgeTwelve / absoluteSecondsInYear;
+          this.profile.baseAgeYears = 12.0 + continuousYearsPassed;
+          const age = this.profile.baseAgeYears;
+          if (age < 13.0) this.profile.currentStage = "Childhood";
+          else if (age < 20.0) this.profile.currentStage = "Teenage";
+          else if (age < 25.0) this.profile.currentStage = "Adolescent";
+          else if (age < 40.0) this.profile.currentStage = "Youth";
+          else if (age < 65.0) this.profile.currentStage = "Adultery";
+          else this.profile.currentStage = "Elder";
+        }
+        this.calculateStructuredCalendar(this.profile.baseAgeYears);
+        if (typeof saveDatabaseToLocalFiles === 'function') saveDatabaseToLocalFiles();
+      },
+      getMaturityFallbackQuote() {
+        this.recalculateCloneMaturity();
+        const c = this.profile.growthClock;
+        const stageText = this.stageQuotations[this.profile.currentStage] || "Core life-cycle parameters balanced.";
+        return `[CLOCK TRACK STATUS] Age Tracker: ${String(c.months).padStart(2,'0')} Months, ${String(c.days).padStart(2,'0')} Days, ${String(c.years).padStart(2,'0')} Years Old.\n\n${stageText}`;
+      }
+    };
+    window.CloneLifeCycleEngine = CloneLifeCycleEngine;
+
+    // Start intervals (safe guards)
+    if (window.cloneClockIntervalId) clearInterval(window.cloneClockIntervalId);
+    window.cloneClockIntervalId = setInterval(() => { if (typeof CloneLifeCycleEngine !== 'undefined') CloneLifeCycleEngine.recalculateCloneMaturity(); }, 10000);
+
+    // Purge repository function
+    window.purgeTargetRepository = function(folderName) {
+      if (!window.cloneMemoryBank || !window.cloneMemoryBank[folderName]) return;
+      const totalItemsToPurge = window.cloneMemoryBank[folderName].length;
+      if (totalItemsToPurge === 0) { alert(`The storage directory folder for [${folderName.toUpperCase()}] is already empty.`); return; }
+      const identityConfirmationCheck = confirm(`Confirm Action: Do you want to completely erase all ${totalItemsToPurge} files saved inside the [${folderName.toUpperCase()}] folder row?`);
+      if (!identityConfirmationCheck) return;
+      window.cloneMemoryBank[folderName] = [];
+      if (typeof saveDatabaseToLocalFiles === 'function') saveDatabaseToLocalFiles();
+      if (typeof updateStorageButtonCounters === 'function') updateStorageButtonCounters();
+      if (typeof injectGlowNotification === 'function') injectGlowNotification(`[PURGED DETECTED] Cleared out data rows from register: ${folderName.toUpperCase()}`, 'system-log');
+      if (typeof createTypingBubble === 'function') createTypingBubble(`Filing system update! Eased memory weights by clearing out all elements stored inside the ${folderName.toUpperCase()} data directory.`);
+    };
+function parseSystemPathString(inputString) {
+  if (!inputString || typeof inputString !== 'string') return "";
+  
+  let cleaned = inputString.trim();
+  
+  // Handle double slash inline console shortcuts without breaking them (e.g., Preference//Master)
+  if (cleaned.includes('//')) {
+    console.log("Inline shortcut path detected:", cleaned);
+    return cleaned; // Keep the command intact for matrix execution
+  }
+  
+  // Standard single/double slash normalization for local directories/paths
+  return cleaned.replace(/\\+/g, '/').replace(/\/+/g, '/');
+}
+
+const ReminderEngine = {
+  /**
+   * INLINE SHORTCUT COMPILER DETECTOR
+   * Syntax structure: Reminder//Time:Action(Context)
+   * Example: Reminder//1530:CheckHydraulics(Important)
+   */
+  parseInlineReminder(text) {
+    const pattern = /^reminder\/\/([^:]+):([^\(]+)\((.+)\)$/i;
+    const match = text.trim().match(pattern);
+    if (!match) return false;
+
+    const targetTime  = match[1].trim();
+    const actionTask  = match[2].trim();
+    const descriptive = match[3].trim();
+
+    const entryObject = {
+      filename: `task_${targetTime}`,
+      line: cloneMemoryBank.reminders.length + 1,
+      data: actionTask,
+      time: targetTime,
+      explanation: descriptive,
+      timestampLogged: new Date().toLocaleTimeString()
+    };
+
+    cloneMemoryBank.reminders.push(entryObject);
+    
+    if (typeof saveDatabaseToLocalFiles === 'function') saveDatabaseToLocalFiles();
+    
+    injectGlowNotification(`[REMINDER BALANCED] Scheduled task recorded at ${targetTime} matrix nodes.`, 'flash-science');
+    createTypingBubble(`Calendar log updated! Baby Bob registered your reminder entry: "${actionTask.toUpperCase()}" set for timeline slot [${targetTime}].`);
+    return true;
+  },
+
+  /**
+   * COMPREHENSIVE CALENDAR SUMMARY MAPPER
+   */
+  generateScheduleSummary() {
+    let output = `=== SCHEDULE REMINDER RECORDS VAULT ===\n\n`;
+    const logs = cloneMemoryBank.reminders || [];
+
+    if (logs.length === 0) {
+      output += `  NO TRACKED EVENTS LOGGED\n`;
+      output += `  Instructions: Type "reminder" or drop shortcuts via:\n`;
+      output += `  Reminder//Time:Task(Details)\n`;
+    } else {
+      logs.forEach((item, idx) => {
+        output += `  [ENTRY 0${idx+1}] SLOT METRIC: ${item.time}\n`;
+        output += `    OPERATION: ${item.data.toUpperCase()}\n`;
+        output += `    CONTEXT  : ${item.explanation}\n`;
+        output += `    LOGGED AT: ${item.timestampLogged}\n\n`;
+      });
+    }
+
+    output += `=======================================`;
+    return output;
+  }
+};
+
+// Track active conversational days directly into persistent storage structures
+let activeDayCounter = 1;
+let currentAwaitMode = null;
+let pendingPayload = { type: null, data: null };
+let currentBPM = 120; // Default rhythm baseline speed configuration metric
+function executeIdentityDatabaseCheck() {
+  // Safe extraction matching your active header name assignment script lines
+  const activeBotIdentity = typeof cloneAssignedIdentityName !== 'undefined' ? cloneAssignedIdentityName : "";
+  const isTemporaryDefault = !activeBotIdentity || activeBotIdentity === "CLONE-BOT" || activeBotIdentity === "CHARLIEBOT";
+
+  let report = `=== SYSTEM INITIALIZATION REGISTRY CONTROLS ===\n\n`;
+  
+  // Verify if identity variables contain active data or structural voids
+  if (isTemporaryDefault) {
+    report += `STATUS: [UNINITIALISED BASELINE DETECTED]\n`;
+    report += `IDENTITY ARCHIVE VALUE: "${activeBotIdentity || 'CLONE-BOT'}" (Temporary Default)\n\n`;
+    report += `NOTICE: The neural core is running on unassigned parameters.\n`;
+    report += `Action required: Type the command "naming" below to map values.\n`;
+  } else {
+    report += `STATUS: [MASTER REGISTER IDENTITY VERIFIED]\n`;
+    report += `CONSOLIDATED SYSTEM ID: ${activeBotIdentity}\n`;
+    report += `  - CALIBRATED PROFILE TAG : ${activeBotIdentity.toUpperCase()}\n`;
+    
+    // Pull stats dynamically straight out of your optimized InventoryChamber database streams
+    if (window.ImpressiveSandbox && window.ImpressiveSandbox.developmentProfile) {
+      const p = window.ImpressiveSandbox.developmentProfile;
+      report += `  - COGNITIVE CORE PROFILE : SECURE_RATING_${p.emotionalSecurityScore}%\n`;
+      report += `  - LINGUISTIC INDEX CLOCK : MATURITY_LEVEL_${p.linguisticMaturityMetric}\n`;
+    }
+    report += `\nNEURAL HEALTH METRICS: Stable, ready for rhythmic execution loops.`;
+  }
+  
+  report += `\n==============================================`;
+  
+  // Print dynamic layout diagnostic readout cleanly via typing engine
+  if (typeof createTypingBubble === 'function') {
+    createTypingBubble(report);
+  } else {
+    const screen = document.getElementById('outputScreen');
+    if (screen) screen.innerHTML += `<div style="color:var(--matrix-green); margin-top:12px;"><pre>${report}</pre></div>`;
+  }
+}
+
+// TOGGLE COMMAND HELPER POPUP FUNCTION
+function toggleHintsBubble() {
+  const panel = document.getElementById('hintsBubble');
+  if (panel) panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+}
+
+/**
+ * 5. UPGRADED ROBOT IDENTITY CONFIGURATION COMMIT LIFECYCLE
+ */
+function commitCloneIdentity() {
+  const inputElementBox = document.getElementById('cloneSystemNameInput');
+  const extractedRawName = inputElementBox ? inputElementBox.value.trim() : '';
+  
+  if (!extractedRawName) {
+    alert("[IDENTITY MATRIX FAILURE] Robot cannot register a blank configuration identifier tag.");
+    if (inputElementBox) inputElementBox.focus();
+    return;
+  }
+  
+  cloneAssignedIdentityName = extractedRawName.toUpperCase();
+  
+  const mainTitleElement = document.getElementById('masterAppTitle');
+  if (mainTitleElement) {
+    mainTitleElement.innerHTML = `${cloneAssignedIdentityName}: <span style="font-size:1.1rem; color:#555;">CHRONICLECLONE</span>`;
+  }
+  
+  const bootOverlay = document.getElementById('bootModal');
+  if (bootOverlay) {
+    bootOverlay.classList.add('fade-out-active'); 
+  }
+  
+  const mainChatConsoleInput = document.getElementById('userInput');
+  if (mainChatConsoleInput) {
+    setTimeout(() => { mainChatConsoleInput.focus(); }, 550); 
+  }
+  
+  setTimeout(() => {
+    const baselineWelcomePhrase = `Hi, my name is ${cloneAssignedIdentityName}, how is your day today?`;
+    createTypingBubble(baselineWelcomePhrase);
+    
+    // Commit the initialization setup directly down to the inventoryChamber folder files instantly
+    saveDatabaseToLocalFiles();
+    logHardwareActivity("Identity Core", `Identity matrix initialized. Persistent data channel bridged.`);
+  }, 900);
+}
+/**
+ * FIXED INTERFACE OVERRIDES SYNCHRONIZER
+ * Tracks initial boots and pulls any existing configuration names on load
+ */
+function synchronizeActiveCloneInterface() {
+  // Safe variable extraction check
+  const explicitRobotIdentity = typeof cloneAssignedIdentityName !== 'undefined' ? cloneAssignedIdentityName : "CHARLIEBOT";
+  
+  // Selectively hunt for our explicitly specified master app tracking ID
+  const titleDisplayElement = document.getElementById('masterAppTitle') || document.querySelector('h1');
+  if (titleDisplayElement) {
+    titleDisplayElement.id = 'masterAppTitle'; // Guarantee layout hooks exist
+    titleDisplayElement.innerHTML = `${explicitRobotIdentity.toUpperCase()}: <span style="font-size:1.1rem; color:#555;">CHRONICLECLONE</span>`;
+  }
+
+  // Intercept and patch the global launch tracking loop routines safely
+  const standardInputPipeline = window.processInput;
+  
+  window.processInput = function() {
+    const inputConsoleElement = document.getElementById('userInput');
+    const typedTextString = inputConsoleElement ? inputConsoleElement.value.trim() : '';
+    const lowCasedQuery = typedTextString.toLowerCase();
+
+    // Intercept active operational launch instructions
+    if (lowCasedQuery === 'launch') {
+      logHardwareActivity("Runtime Gate", "Intercepting 'LAUNCH' macro token execution sequence.");
+      if (inputConsoleElement) inputConsoleElement.value = '';
+      
+      const labelBadgeIndicator = document.getElementById('statusIndicator');
+      if (labelBadgeIndicator) {
+        labelBadgeIndicator.textContent = "MODE: PURGE CALIBRATION INSTANCE RUNNING";
+        labelBadgeIndicator.style.color = "var(--neon-magenta)";
+      }
+
+      if (typeof initializePurgeRoutine === 'function') {
+        logHardwareActivity("Wipe Engine", "Spawning structural loading progress frame arrays.");
+        initializePurgeRoutine();
+      } else {
+        logHardwareActivity("Wipe Engine", "Purge loading frame sub-routine layer unavailable.", true);
+        alert("[CORE EXCURSION ERROR] Sequencer loader module is detached.");
+      }
+      return; 
+    }
+
+    if (typeof standardInputPipeline === 'function') {
+      standardInputPipeline();
+    }
+  };
+
+  logHardwareActivity("NeoCore Boot", "Identity naming engines and launch overrides successfully initialized.");
+}
+/**
+ * RE-ENGINEERED SCROLL-AWARE TYPEWRITER PRESENTATION ENGINE
+ * Automatically pauses auto-snapping if the user tries to review historical logs
+ */
+function createTypingBubble(fullText) {
+  const screen = document.getElementById('outputScreen');
+  if (!screen) return;
+  
+  const responseContainer = document.createElement('div');
+  responseContainer.className = 'bot-bubble';
+  responseContainer.style.marginTop = '12px';
+  responseContainer.innerHTML = `<strong style="color:var(--neon-blue);">${typeof cloneAssignedIdentityName !== 'undefined' ? cloneAssignedIdentityName : 'CLONE-BOT'}:</strong> <span class="text-content"></span><span class="cursor"></span>`;
+  screen.appendChild(responseContainer);
+  
+  // Track if user has scrolled away from the bottom viewport baseline zone
+  let isUserScrollingUp = false;
+
+  // Monitor scroll adjustments live inside the container box
+  function checkUserScrollGesture() {
+    // Proximity margin calculation threshold (15 pixels buffer tolerance layer)
+    const currentDistanceToBottom = screen.scrollHeight - screen.scrollTop - screen.clientHeight;
+    isUserScrollingUp = currentDistanceToBottom > 15;
+  }
+
+  // Bind active mouse-wheel and touch-drag event listener strings safely
+  screen.addEventListener('scroll', checkUserScrollGesture);
+  screen.addEventListener('touchstart', () => { isUserScrollingUp = true; }, { passive: true });
+
+  // Snap window downward the millisecond the text bubble wrapper is spawned
+  screen.scrollTop = screen.scrollHeight;
+
+  const textTarget = responseContainer.querySelector('.text-content');
+  const cursorTarget = responseContainer.querySelector('.cursor');
+  
+  let index = 0;
+  function typeChar() {
+    if (index < fullText.length) {
+      textTarget.textContent += fullText.charAt(index);
+      index++;
+      
+      // THE FIX VALVE: Only snap if the user isn't actively reading old records
+      if (!isUserScrollingUp) {
+        screen.scrollTop = screen.scrollHeight;
+      }
+      
+      setTimeout(typeChar, 22); // Character printing pace tick duration
+    } else {
+      if (cursorTarget) cursorTarget.remove(); // Clean up terminal blinker block
+      
+      // Clean up pointer variables to prevent mobile memory leaks
+      screen.removeEventListener('scroll', checkUserScrollGesture);
+      
+      // Final tracking snap if user remains near bottom profile zone
+      if (!isUserScrollingUp) {
+        screen.scrollTop = screen.scrollHeight;
+      }
+    }
+  }
+  typeChar();
+}
+// --- UNIFIED GLOBAL LEXICON MODULE ---
+// Safely initialize or merge the Science vocabulary database
+window.scienceLexicon = window.scienceLexicon || {};
+Object.assign(window.scienceLexicon, {
+  hydraulic: "Fluid-driven hydrostatic pressure matrices",
+  muscle: "Synthetic polymer bundle myofiber filaments",
+  frequency: "Oscillatory telemetry patterns measured in hertz",
+  fluid: "Viscous hydraulic medium driving linear actuators",
+  telemetry: "Remote tracking vector processing stream layers" // Kept intact for advanced parsing
+});
+
+// Safely initialize or merge the Hip-Hop vocabulary database
+window.hiphopLexicon = window.hiphopLexicon || {};
+Object.assign(window.hiphopLexicon, {
+  loop: "The locked, infinite breakbeat cypher structure",
+  breakbeat: "The syncopated snare pocket where gravity drops",
+  groove: "The continuous rhythmic pocket holding spatial tension",
+  bounce: "The continuous up-and-down kinetic compression style",
+  break: "The isolated rhythmic suspension threshold" // Kept intact for advanced parsing
+});
+
+// Re-expose legacy global reference pointer variables safely without using "const"
+var scienceLexicon = window.scienceLexicon;
+var hiphopLexicon = window.hiphopLexicon;
+
+console.log("[LEXICON DATABASE] Vocabulary structures consolidated successfully without declaration scope collisions.");
+
+
+    let grooveActive = false;
+    let loopId = null;
+    let tempo = 0;
+
+    // PHYSICAL DRIVE SUB-SYSTEM
+    // PHYSICAL DRIVE SUB-SYSTEM
+    function runPhysicalActuators() {
+      if (!grooveActive) return;
+      tempo += 0.25;
+
+      // Science calculation maps directly to dynamic visual tension
+      const physicalTension = 1 + Math.sin(tempo * 1.8) * 0.35;
+      const angleRotation = Math.cos(tempo * 2.5) * 55;
+
+      document.getElementById('myofiber').style.transform = `scaleY(${physicalTension})`;
+      document.getElementById('leftArm').style.transform = `rotate(${angleRotation}deg)`;
+    } // <-- THIS WAS MISSING! Adding this closes the block and resolves the error.
+
+    
+function processInput() {
+  const inputEl = document.getElementById('userInput');
+  const text = inputEl ? inputEl.value.trim() : ''; 
+  if (!text) return;
+
+  // Intercept text input fields to process security setup blocks first
+  if (typeof SecurityGate !== 'undefined' && SecurityGate.parseSecurityVaultShortcut(text)) {
+    inputEl.value = ''; return;
+  }
+
+  // --- CRITICAL LOCKED SECURITY SYSTEM INTERCEPT VALVE ---
+  if (typeof SecurityGate !== 'undefined' && SecurityGate.sessionStatus === 'locked_out') {
+    inputEl.value = '';
+    const screen = document.getElementById('outputScreen');
+    if (screen) screen.innerHTML += `<div style="color:var(--neon-magenta); margin-top:12px;">&gt; [BLOCKED] Terminal state is currently locked.</div>`;
+    return;
+  }
+
+  inputEl.value = '';
+  const screen = document.getElementById('outputScreen');
+  if (screen) screen.innerHTML += `<div style="color:#aaa; margin-top:12px;">&gt; ${text}</div>`;
+
+  // --- 1. DYNAMIC SECRET LAND / REPOSITORY HIERARCHICAL SHORTCUT INTERCEPT VALVE ---
+  if (typeof window.parseInlineDoubleSlashShortcut === 'function' && window.parseInlineDoubleSlashShortcut(text)) {
+    if (window.logicTracker && window.logicTracker.saveActiveStateToHardware) {
+      window.logicTracker.saveActiveStateToHardware();
+    }
+    return;
+  }
+
+  // --- 2. EXECUTABLE USER-DEFINED COMMAND CODE CHECK ---
+  if (window.logicTracker && window.logicTracker.executeCustomUserCommand && window.logicTracker.executeCustomUserCommand(text)) {
+    window.logicTracker.saveActiveStateToHardware(); return;
+  }
+
+
+  // Initialize single-declaration baseline variable loop
+  const lowerText = text.toLowerCase();
+      // --- PLACE THIS LOGIC LAYER INSIDE YOUR MAIN processInput RE-ROUTER MECHANISM ---
+// Target structural match patterns: rollback//CHK_ID
+if (lowerText.startsWith('rollback//')) {
+  const targetCheckpointID = typedTextString.substring(10).trim().toUpperCase();
+  logHardwareActivity("Runtime Gate", `Intercepting 'ROLLBACK' command query target reference: ${targetCheckpointID}`);
+
+  if (inputConsoleElement) inputConsoleElement.value = '';
+
+  const stack = window.inventoryChamber.checkpoints || [];
+  const matchedCheckpoint = stack.find(item => item.id === targetCheckpointID);
+
+  if (matchedCheckpoint && matchedCheckpoint.snapshot) {
+    const snap = matchedCheckpoint.snapshot;
+    
+    // Overwrite the active state registers instantly
+    window.cloneMemoryBank = JSON.parse(JSON.stringify(snap.memoryVault));
+    
+    if (snap.cognitiveMetrics && window.ImpressiveSandbox) {
+      window.ImpressiveSandbox.developmentProfile = JSON.parse(JSON.stringify(snap.cognitiveMetrics));
+    }
+    
+    if (snap.cloneName) {
+      window.cloneAssignedIdentityName = snap.cloneName;
+      const mainTitleElement = document.getElementById('masterAppTitle');
+      if (mainTitleElement) {
+        mainTitleElement.innerHTML = `${window.cloneAssignedIdentityName}: <span style="font-size:1.1rem; color:#555;">CHRONICLECLONE</span>`;
+      }
+    }
+
+    // Lock internal gate and write changes to hardware disk
+    isInventoryStateDirty = true;
+    saveDatabaseToLocalFiles();
+
+    createTypingBubble(`System state rolled back successfully! System restored to historical state parameters [${targetCheckpointID}] verified at ${matchedCheckpoint.time}.`);
+  } else {
+    logHardwareActivity("InventoryChamber", `Rollback execution rejected. Checkpoint token identifier "${targetCheckpointID}" not located inside current trace logs.`, true);
+    alert(`[ROLLBACK ABORTED] Checkpoint ID: "${targetCheckpointID}" does not exist inside active trace indexes.`);
+  }
+  return; // Terminate tracking routine execution cleanly
+}
+
+  // --- 3. INLINE TELEMETRY INTERCEPT LOGIC ---
+  // Safely parse inline commands structured like: telemetry/lycapoles//Venture:farming(1)
+  if (lowerText.startsWith('telemetry/')) {
+    const parts = text.split('/');
+    const rawBank = parts[0] ? parts[0].toLowerCase() : '';
+    const targetPath = parts[1] ? parts[1].split('//')[0] : '';
+    const cleanPath = targetPath.toLowerCase();
+    const isSecretLandRoute = ['lycapoles', 'otamebdanha', 'kimwalhoek'].includes(cleanPath);
+    
+    if (isSecretLandRoute) {
+      const extractedLine = "Line Alpha-1"; // Fallback identifier
+      let metadataExplanation = `Secret Land Operation Mapped | ${extractedLine}`;
+      
+      injectGlowNotification(`[TERRAIN EXCURSION] Deploying asset vectors inside ${targetPath.toUpperCase()} sector.`, 'flash-science');
+      
+      // Adapt Cerebellum body bounce speed dynamically
+      if (typeof window.CerebellumGeologicalSync !== 'undefined') {
+        window.CerebellumGeologicalSync.adaptKineticsToRegion(cleanPath);
+      }
+    }
+  }
+  
+    // --- 5. FIXED EXPLICIT UNHANDLED KEYWORD COMMAND CHANNELS ---
+  if (lowerText === 'reminder') {
+    logHardwareActivity("Router Gate", "Executing 'REMINDER' channel directory diagnostic summary.");
+    if (typeof ReminderEngine !== 'undefined' && ReminderEngine.generateScheduleSummary) {
+      createTypingBubble(ReminderEngine.generateScheduleSummary());
+    } else {
+      createTypingBubble("=== SCHEDULE RECORDS VAULT ===\n\n  No active schedule engines configured on this core node structure.\n  Format shortcut inputs via: Reminder//Time:Task(Details)");
+    }
+    return;
+  }
+
+  if (lowerText === 'map') {
+    logHardwareActivity("Router Gate", "Executing 'MAP' environment readout shortcut trace.");
+    // Route directly to your geographical telemetry reporting string matrix automatically
+    const telemetryCommandToken = 'telemetry';
+    if (inputEl) {
+      inputEl.value = telemetryCommandToken;
+      processInput();
+    }
+    return;
+  }
+
+  // --- 1. DYNAMIC RECALL ENGINE COMMAND SPLITTER ROUTER ---
+  if (lowerText.startsWith('recall//')) {
+    const targetedTrackName = text.substring(8).trim();
+    logHardwareActivity("Router Gate", `Executing 'RECALL' performance audio lyric sync route for: "${targetedTrackName}"`);
+    
+    if (typeof executeRecallPerformance === 'function') {
+      executeRecallPerformance(targetedTrackName);
+    } else {
+      createTypingBubble("CRITICAL FAULT: Subtitle tracking performance audio player loop module is detached.");
+    }
+    return;
+  }
+  
+  // Standard text indicator recall macro
+  if (lowerText === 'recall') {
+    logHardwareActivity("Router Gate", "Executing 'RECALL' storage inventory snapshot analysis map.");
+    if (typeof handleRetrievalEngine === 'function') {
+      handleRetrievalEngine();
+    } else {
+      logHardwareActivity("Storage Vault", "Retrieval database summary module is unreachable.", true);
+    }
+    return;
+  }
+
+  // --- 2. INTERACTIVE ROLLBACK COMMAND INTERCEPT VALVE ---
+  if (lowerText.startsWith('rollback//')) {
+    const targetCheckpointID = text.substring(10).trim().toUpperCase();
+    logHardwareActivity("Runtime Gate", `Intercepting 'ROLLBACK' target snapshot token: ${targetCheckpointID}`);
+
+    const stack = (window.inventoryChamber && window.inventoryChamber.checkpoints) ? window.inventoryChamber.checkpoints : [];
+    const matchedCheckpoint = stack.find(item => item.id === targetCheckpointID);
+
+    if (matchedCheckpoint && matchedCheckpoint.snapshot) {
+      window.cloneMemoryBank = JSON.parse(JSON.stringify(matchedCheckpoint.snapshot.memoryVault));
+      if (matchedCheckpoint.snapshot.cognitiveMetrics && window.ImpressiveSandbox) {
+        window.ImpressiveSandbox.developmentProfile = JSON.parse(JSON.stringify(matchedCheckpoint.snapshot.cognitiveMetrics));
+      }
+      if (typeof flagStateChangeForSerialization === 'function') flagStateChangeForSerialization();
+      createTypingBubble(`System state successfully rolled back parameters to historical node checksum [${targetCheckpointID}].`);
+    } else {
+      alert(`[ROLLBACK REJECTED] Checkpoint ID: "${targetCheckpointID}" could not be located inside current logs.`);
+    }
+    return;
+  }
+
+  // --- 3. HARD CODED SAMPLE KEYWORDS RESPONSES MAP ('muscle', 'frequency', etc.) ---
+  const systemSampleKeywords = ['muscle', 'frequency', 'breakbeat', 'fluid'];
+  if (systemSampleKeywords.includes(lowerText)) {
+    logHardwareActivity("Lexicon Gate", `Intercepting system matrix keyword merge state token: [${lowerText.toUpperCase()}]`);
+    
+    let responseQuoteText = "";
+    if (lowerText === 'muscle') {
+      responseQuoteText = "COGNITIVE SYNTHESIS SUMMARY: Synthetic polymer bundle myofiber filaments activated. Mechanical tension scaling ratio operational under baseline load capacities.";
+    } else if (lowerText === 'frequency') {
+      responseQuoteText = "COGNITIVE SYNTHESIS SUMMARY: Oscillatory telemetry patterns measured in hertz are locked. System tracking heartbeat clock synchronized with device clocks.";
+    } else if (lowerText === 'breakbeat') {
+      responseQuoteText = "COGNITIVE SYNTHESIS SUMMARY: Syncopated snare pocket gravity detected! Basal Ganglia motor actuators adjusting physical canvas bounce styling vectors matching target tempo.";
+    } else if (lowerText === 'fluid') {
+      responseQuoteText = "COGNITIVE SYNTHESIS SUMMARY: Viscous hydraulic medium driving linear actuators confirmed functional. Hydrostatic pressure metrics resting at uniform density thresholds.";
+    }
+
+    // Trigger grooming pipeline metrics logic safely
+    if (window.ImpressiveSandbox && typeof window.ImpressiveSandbox.processGroomingPipeline === 'function') {
+      window.ImpressiveSandbox.processGroomingPipeline();
+    }
+
+    createTypingBubble(responseQuoteText);
+    return;
+  }
+
+
+  // --- 4. MASTER COMMAND MACRO CHANNELS HUB ---
+  if (lowerText === 'telemetry') {
+    let ageY = 2.0; let mm = "00", dd = "00", yy = "02";
+    if (typeof CloneLifeCycleEngine !== 'undefined') {
+      CloneLifeCycleEngine.recalculateCloneMaturity();
+      const p = CloneLifeCycleEngine.profile; const c = p.growthClock;
+      ageY = p.baseAgeYears; 
+      mm = String(c.months).padStart(2,'0'); 
+      dd = String(c.days).padStart(2,'0'); 
+      yy = String(c.years).padStart(2,'0');
+    }
+    const ratio = (ageY < 12.0) ? "24 Mins = 1 Day (Childhood Speed)" : "Device Real-Time Clock Sync (Matured)";
+    
+    const worldReport = `=== GEOLOGICAL WORLD ENVIRONMENT REPORT ===\n\n  • ENVIRONMENT DOMAIN   : environment/world.html\n  • CHRONO CLOCK SCALE   : ${ratio}\n  • ENGINE RECONCILED TIME: ${mm}-${dd}-${yy} (MM-DD-YY)\n\n  • SECRET LAND SECTOR 01: LYCAPOLES   (17,380 Block Tiles Wide)\n  • SECRET LAND SECTOR 02: OTAMEBDANHA (19,500 Block Tiles Wide)\n  • SECRET LAND SECTOR 03: KIMWALHOEK  (11,970 Block Tiles Wide)\n  • SECRET LAND SECTOR 04: TWEESUTFORD  (13,820 Block Tiles Wide)\n  • NATURAL BOUNDARIES   : Matrix Ocean, Desert Sands, & Jagged Cliff Borders\n\n==========================================================`;
+    createTypingBubble(worldReport);
+    return;
+  }
+
+  if (lowerText === 'storage') {
+    if (typeof window.updateStorageButtonCounters === 'function') window.updateStorageButtonCounters();
+    const pop = document.getElementById('storagePopup'); if (pop) pop.style.display = 'flex';
+    createTypingBubble("SYSTEM: Opening filing cabinet registry."); return;
+  }
+  if (lowerText === 'engineer') { executeEngineerDiagnostic(); return; }
+  if (lowerText === 'goals') { executeLiveFocusInspectionQuery(); return; }
+  if (lowerText === 'audit') { if (typeof HippocampusHealthAudit !== 'undefined') HippocampusHealthAudit.executeSystemHealthAudit(); return; }
+  if (lowerText === 'nodes') { executeMemoryNodeInspectionQuery(); return; }
+  if (lowerText === 'wipe') { if (typeof executeWipePartitionCommand === 'function') executeWipePartitionCommand(); return; }
+  if (lowerText === 'agency') { if (window.consoleEngineerAgency) window.consoleEngineerAgency.evaluateStageClassroomProgress(); return; }
+  if (lowerText === 'sandbox' && typeof ImpressiveSandbox !== 'undefined') { createTypingBubble(ImpressiveSandbox.generateBabyTalkFeedback()); return; }
+  if (lowerText === 'download' && typeof ImpressiveSandbox !== 'undefined') { createTypingBubble("Compiling data pack..."); ImpressiveSandbox.triggerFileDownload(); return; }
+  if (lowerText === 'rename' && typeof executeRenameResetMacro === 'function') { executeRenameResetMacro(); return; }
+  if (lowerText === 'whoami' && typeof executeIdentityDatabaseCheck === 'function') { executeIdentityDatabaseCheck(); return; }
+  if (lowerText === 'high') { handleRetrievalEngine(); return; }
+  if (lowerText === 'stop') {
+    if (typeof SynthEngine !== 'undefined') SynthEngine.killAllSounds();
+    if (typeof terminatePerformanceLoop === 'function') terminatePerformanceLoop();
+    if (typeof BasalGangliaRhythmLoop !== 'undefined') BasalGangliaRhythmLoop.stopLoop(); return;
+  }
+
+  // --- 5. MULTI-TURN DATA CAPTURE HOOK RECEPTORS ---
+  const validSectors = ['research', 'lyric', 'notes', 'language', 'word', 'letter', 'term', 'reminders', 'command', 'naming', 'collaborate', 'preference', 'lesson', 'tutor', 'illegal_registry'];
+  if (validSectors.includes(currentAwaitMode)) {
+    window.cloneMemoryBank[currentAwaitMode].push({ filename: "manual_entry_log", line: window.cloneMemoryBank[currentAwaitMode].length + 1, data: text });
+    createTypingBubble(`Saved information inside [${currentAwaitMode.toUpperCase()}] register.`);
+    currentAwaitMode = null; if (typeof updateStatusIndicator === 'function') updateStatusIndicator();
+    if (window.logicTracker && window.logicTracker.saveActiveStateToHardware) window.logicTracker.saveActiveStateToHardware();
+    return;
+  }
+
+  if (validSectors.includes(lowerText)) {
+    currentAwaitMode = lowerText; if (typeof updateStatusIndicator === 'function') updateStatusIndicator();
+    createTypingBubble(`Locked into ${lowerText.toUpperCase()} database receiver pipeline. Input raw data below:`);
+    return;
+  }
+
+  if (typeof executeStandardFallbackParsing === 'function') {
+    executeStandardFallbackParsing(text);
+  }
+}
+
+
+/**
+ * 1. LIVE ELEMENT QUANTITY COUNTER SYNCHRONIZER
+ * Refreshes individual badge values dynamically inside the UI text tags
+ */
+function updateStorageButtonCounters() {
+  const targetCategories = ['research', 'lyric', 'collaborate', 'preference', 'reminders'];
+  
+  targetCategories.forEach(category => {
+    const textLabelTarget = document.getElementById(`count-${category}`);
+    if (textLabelTarget && window.cloneMemoryBank) {
+      // Safely default arrays to empty slots if uninitialized
+      if (!window.cloneMemoryBank[category]) window.cloneMemoryBank[category] = [];
+      textLabelTarget.textContent = window.cloneMemoryBank[category].length;
+    }
+  });
+}
+
+/**
+ * UPGRADED ARCHIVE DATA TRACK CONTROLLER
+ * Explicitly identifies user-saved items versus high command simulated metrics
+ */
+function inspectFolderContents(categoryTarget) {
+  const popupElement = document.getElementById('storagePopup');
+  if (popupElement) popupElement.style.display = 'none';
+
+  logHardwareActivity("Storage Vault", `Inspecting sector data tracks for: [${categoryTarget.toUpperCase()}]`);
+
+  if (!window.cloneMemoryBank || !window.cloneMemoryBank[categoryTarget]) {
+    createTypingBubble(`=== SYSTEM RECOVERY ATTEMPT ===\n\n  Target database index channel [${categoryTarget.toUpperCase()}] contains zero initialized fields.`);
+    return;
+  }
+
+  const fileLogsArray = window.cloneMemoryBank[categoryTarget];
+  let readoutReport = `=== ARCHIVE DEPLOYMENT VIEW: ${categoryTarget.toUpperCase()} ===\n\n`;
+
+  if (fileLogsArray.length === 0) {
+    readoutReport += `  EMPTY SECTOR BLOCKS DETECTED\n`;
+    readoutReport += `  No active local checkpoint parameters written to this file track.`;
+  } else {
+    fileLogsArray.forEach((item, index) => {
+      const dataStr = item.data !== undefined ? String(item.data) : (typeof item === 'string' ? item : "");
+      
+      // Filter validation: determine whether item stems from user entries or systems
+      const originExpl = item.explanation ? String(item.explanation) : "";
+      const isUserGenerated = !originExpl.includes("High Command Registry") && !item.filename?.startsWith("baseline_cycle");
+      
+      const recordTagLabel = isUserGenerated ? "★ [ USER_RECORD ]" : "⚓ [ HIGH_COMMAND ]";
+      const parsedFileHandle = item.filename ? item.filename : `manual_node_0${index+1}`;
+      const parsedLineValue = item.line !== undefined ? item.line : (index + 1);
+
+      readoutReport += `  ${recordTagLabel} FILE: "${parsedFileHandle}" (Line ${parsedLineValue})\n`;
+      readoutReport += `         LOGGED DATA: "${dataStr}"\n`;
+      if (item.explanation) {
+        readoutReport += `         META_TRACE : ${item.explanation}\n`;
+      }
+      readoutReport += `  --------------------------------------------------\n`;
+    });
+  }
+
+  readoutReport += `\n========================================================`;
+  
+  if (typeof createTypingBubble === 'function') {
+    createTypingBubble(readoutReport);
+  }
+}
+
+/**
+ * 3. CONTROLLED TARGET SECTOR WIPING INTERCEPTOR
+ * Safely flushes one data channel without resetting the rest of your app variables
+ */
+function wipeSingleDirectoryBank(categoryTarget) {
+  if (!window.cloneMemoryBank || !window.cloneMemoryBank[categoryTarget]) return;
+
+  const userConfirmation = confirm(`[CRITICAL PURGE ACTION] Are you absolutely sure you want to completely erase all data records stored inside the "${categoryTarget.toUpperCase()}" index bank? This will update your inventoryChamber files.`);
+  if (!userConfirmation) return;
+
+  // Clear out targeted list arrays strictly
+  window.cloneMemoryBank[categoryTarget] = [];
+  
+  // Re-sync UI text displays live
+  updateStorageButtonCounters();
+  
+  // Force file synchronization down to storage.json | storage.adb matrix files
+  if (typeof flagStateChangeForSerialization === 'function') {
+    flagStateChangeForSerialization();
+  } else {
+    isInventoryStateDirty = true;
+    saveDatabaseToLocalFiles();
+  }
+
+  logHardwareActivity("Purge Gateway", `Target data matrix array block [${categoryTarget.toUpperCase()}] explicitly zeroed by user parameters.`);
+  alert(`[PURGE COMPLETION SUCCESS] The ${categoryTarget.toUpperCase()} database index has been flushed cleanly.`);
+}
+
+/**
+ * OMNIDIRECTIONAL INPUT TELEMETRY ENGINE
+ * Tracks text buffers live, updates counters, and dynamically scales interface colors.
+ */
+function hookLiveInputTelemetryTracker() {
+  const inputConsoleField = document.getElementById('userInput');
+  const trackingTrackerRow  = document.getElementById('inputTelemetryTracker');
+  const numericCharCounter = document.getElementById('liveCharCounter');
+  const numericWordCounter = document.getElementById('liveWordCounter');
+
+  // Guard clause to exit safely if UI nodes are missing from the DOM
+  if (!inputConsoleField || !trackingTrackerRow) return;
+
+  inputConsoleField.addEventListener('input', () => {
+    const rawStringValue = inputConsoleField.value;
+    const cleanCharacterLength = rawStringValue.length;
+
+    // Reset counters and hide indicator layer instantly if textbox is empty
+    if (cleanCharacterLength === 0) {
+      trackingTrackerRow.style.opacity = '0';
+      if (numericCharCounter) numericCharCounter.textContent = '0';
+      if (numericWordCounter) numericWordCounter.textContent = '0';
+      return;
+    }
+
+    // Unveil layout tracking panel
+    trackingTrackerRow.style.opacity = '1';
+    if (numericCharCounter) numericCharCounter.textContent = cleanCharacterLength;
+
+    // Calculate isolated word block tokens avoiding layout thrashing
+    const trimmedValue = rawStringValue.trim();
+    const totalWordsCount = trimmedValue === "" ? 0 : trimmedValue.split(/\s+/).length;
+    if (numericWordCounter) numericWordCounter.textContent = totalWordsCount;
+
+    // HIGH BUFFER THRESHOLD WARNING SYSTEM
+    // Shifts color profiles dynamically if message approach terminal boundaries
+    trackingTrackerRow.style.color = cleanCharacterLength > 80 ? 'var(--neon-magenta)' : 'var(--neon-blue)';
+  });
+}
+
+// Bind directly onto document lifecycle initialization states
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', hookLiveInputTelemetryTracker);
+} else {
+  hookLiveInputTelemetryTracker();
+}
+
+// --- CORE NEURAL MOTOR INTEGRATION BASES ---
+if (typeof window.BasalGangliaRhythmLoop === 'undefined') {
+  window.BasalGangliaRhythmLoop = {
+    audioContext: null,
+    isActive: false,
+    intervalId: null,
+    currentStep: 0
+  };
+}
+
+console.log("[index.html] Initialization script executed cleanly. UI markup and runtime hooks repaired.");
+    
+window.parseInlineDoubleSlashShortcut = function(text) {
+  if (!text || typeof text !== 'string') return false;
+
+  // NeoCore Integration: Pre-sanitize the text buffer before regex patterns compile
+  let sanitizedInputText = text;
+  if (window.NeoCoreStringSanitizer && window.NeoCoreStringSanitizer.cleanRawPayload) {
+    sanitizedInputText = window.NeoCoreStringSanitizer.cleanRawPayload(text);
+  }
+  
+  // 1. COMBINED REGEX: This pattern handles your optional bracket matches like [12]
+  const annotatedPattern = /^([a-zA-Z_]+)\/\/([^:]+):([^\(]+)\(([^\)]+)\)(?:\[([^\]]+)\])?$/;
+  const match = sanitizedInputText.trim().match(annotatedPattern);
+  if (!match) return false;
+
+  // 2. EXTRACT CAPTURED TOKENS
+  const rawBank       = match[1].toLowerCase();
+  const targetPath    = match[2].trim();
+  const valuePayload  = match[3].trim();
+  const extractedMeta = match[4].trim();
+
+  const validBanks = ['research', 'lyric', 'notes', 'language', 'word', 'letter', 'term', 'reminders', 'command', 'naming', 'collaborate', 'preference', 'telemetry'];
+  if (!validBanks.includes(rawBank)) return false;
+
+  let assignedLineNumber = parseInt(extractedMeta);
+  let metadataExplanation = extractedMeta;
+  if (isNaN(assignedLineNumber)) {
+    assignedLineNumber = (window.cloneMemoryBank[rawBank] || []).length + 1;
+  }
+
+  // Define this fallback variable so Branch B can modify it safely
+  let processedOutputString = valuePayload;
+
+  // --- SPECIAL STRUCTURAL HANDLING PIPELINE FOR MASTER PREFERENCES ---
+  if (rawBank === 'preference') {
+    metadataExplanation = `Preference Profile Configured | ${extractedMeta}`;
+    injectGlowNotification(`[PREFERENCE ACCOUNTED] Matched value: ${valuePayload.toUpperCase()}`, 'flash-lyric');
+  }
+  
+  // --- TELEMETRY / GEOGRAPHICAL MATRICES CATEGORIES ---
+  else if (rawBank === 'telemetry') {
+    const isSecretLandRoute = (targetPath.toLowerCase() === 'lycapoles' || targetPath.toLowerCase() === 'otamebdanha');
+    if (isSecretLandRoute) {
+      const extractedLine = "Line Alpha-1"; // Baseline initialization parameter
+      metadataExplanation = `Secret Land Operation Verified | ${extractedLine}`;
+      injectGlowNotification(`[TERRAIN EXPEDITION] Venturing into ${targetPath.toUpperCase()} sector.`, 'flash-science');
+      
+      // Auto-uplift emotional score settings
+      if (typeof ImpressiveSandbox !== 'undefined' && ImpressiveSandbox.developmentProfile) {
+        ImpressiveSandbox.developmentProfile.emotionalSecurityScore = Math.min(100, ImpressiveSandbox.developmentProfile.emotionalSecurityScore + 5);
+      }
+    }
+  }
+  
+  // BRANCH B: GOSPEL NARRATION HARMONIZER
+  else if (rawBank === 'collaborate' && targetPath.toLowerCase() === 'gospel_narration') {
+    const lookupKey = valuePayload.toLowerCase();
+    let definitionFound = "Custom narrative phrase entry recorded.";
+    
+    if (typeof GospelTerminologyVault !== 'undefined') {
+      for (let term in GospelTerminologyVault) {
+        if (lookupKey.includes(term)) {
+          definitionFound = GospelTerminologyVault[term];
+          break;
+        }
+      }
+    }
+    
+    processedOutputString = `THEOLOGY PROFILE MATCHED: "${valuePayload.toUpperCase()}". Concept baseline: ${definitionFound}`;
+    metadataExplanation = `Gospel Context Mapped | ${extractedMeta}`;
+    injectGlowNotification(`[NARRATION HARMONIZED] Locked concept path: ${valuePayload.toUpperCase()}`, 'flash-lyric');
+  }
+
+  // Auto-increment protection valve calculations to prevent overwritten array collisions
+  let lineNum = assignedLineNumber;
+  let lineAvailable = false;
+  if (!window.cloneMemoryBank[rawBank]) window.cloneMemoryBank[rawBank] = [];
+  
+  while (!lineAvailable) {
+    const collisionIdx = window.cloneMemoryBank[rawBank].findIndex(
+      item => item.filename.toLowerCase() === targetPath.toLowerCase() && item.line === lineNum
+    );
+    if (collisionIdx !== -1) lineNum++; else lineAvailable = true;
+  }
+
+// Inside your parseInlineDoubleSlashShortcut function:
+window.cloneMemoryBank[rawBank].push({
+  filename: targetPath,
+  line: lineNum,
+  data: processedOutputString,
+  explanation: metadataExplanation
+});
+
+window.cloneMemoryBank[rawBank].sort((a, b) => a.line - b.line);
+
+// THE PROPER CHANGE: Call the flag gate instead of compiling file streams endlessly
+if (typeof flagStateChangeForSerialization === 'function') {
+  flagStateChangeForSerialization();
+}
+
+  const targetGlowClass = ['lyric', 'notes', 'collaborate'].includes(rawBank) ? 'flash-lyric' : 'flash-science';
+  injectGlowNotification(`[INLINE LOCKED] Saved to ${rawBank.toUpperCase()} -> "${targetPath}" (Line ${lineNum})`, targetGlowClass);
+  
+  if (typeof ImpressiveSandbox !== 'undefined' && ImpressiveSandbox.processGroomingPipeline) {
+    ImpressiveSandbox.processGroomingPipeline();
+  }
+
+  if (typeof createTypingBubble === 'function') {
+    createTypingBubble(`Sandbox update recorded! Six-lobe cognitive parser analyzed data path sequence. Saved entry data to Baby Bob's [${rawBank.toUpperCase()}] portfolio.`);
+  }
+  return true;
+}; 
+
+// GLOBAL LOGGER SUB-SYSTEM
+function injectGlowNotification(text, modeClass = 'flash-science') {
+  const screen = document.getElementById('outputScreen');
+  if (!screen) return; 
+  
+  const log = document.createElement('div');
+  log.className = `system-log ${modeClass}`;
+  log.style.padding = '8px';
+  log.style.margin = '8px 0';
+  log.style.borderRadius = '4px';
+  log.textContent = text;
+  
+  screen.appendChild(log);
+  screen.scrollTop = screen.scrollHeight;
+}
+
+// COMMAND DETECTOR AND STORAGE PARSER
+function handleStorageCommands(text) {
+  if (!text || typeof text !== 'string') return false;
+
+  const isResearch = text.startsWith('research ');
+  const isLyric = text.startsWith('lyric ');
+
+  if (isResearch || isLyric) {
+    const commandType = isResearch ? 'research' : 'lyric';
+    const payload = text.substring(commandType.length + 1).trim();
+
+    if (payload.length > 0) {
+      if (typeof window.cloneMemoryBank === 'undefined') {
+        window.cloneMemoryBank = { research: [], lyric: [] };
+      }
+      
+      window.cloneMemoryBank[commandType].push(payload);
+      const confirmMsg = `[MEMORY LOCKED] Scientific repository updated. Payload classified under [${commandType.toUpperCase()}] bank. Index position assigned.`;
+      
+      if (typeof createTypingBubble === 'function') {
+        createTypingBubble(confirmMsg);
+      } else {
+        injectGlowNotification(confirmMsg, commandType === 'lyric' ? 'flash-lyric' : 'flash-science');
+      }
+      return true;
+    }
+  }
+  return false; 
+}
+
+// --- SAFELY READ AND SYNC DYNAMIC DATABASES FROM DISK ARCHIVES ---
+if (typeof window.cloneMemoryBank === 'undefined') {
+  try {
+    // Attempt recovery from persistent local cache storage
+    const recoveredHardwarePayload = localStorage.getItem('charliebot_memory_vault');
+    if (recoveredHardwarePayload) {
+      window.cloneMemoryBank = JSON.parse(recoveredHardwarePayload);
+      console.log("[MEMORY RECOVERY] Persistent hardware cache restored successfully.");
+    } else {
+      // Default structure setup if no previous records exist
+      window.cloneMemoryBank = {
+        research: [], lyric: [], command: [], naming: [], 
+        language: [], word: [], letter: [], term: [],
+        notes: [], collaborate: [], preference: [], telemetry: []
+      };
+    }
+  } catch (e) {
+    console.warn("Storage controller fallback: hardware disk inaccessible, initializing clean buffers.");
+    window.cloneMemoryBank = { research: [], lyric: [], command: [], naming: [], language: [], word: [], letter: [], term: [] };
+  }
+}
+
+/**
+ * ============================================================================
+ * INVENTORY CHAMBER: VIRTUAL SANDBOX DATA STORAGE CONTROLLER
+ * ============================================================================
+ */
+
+// Simulated internal filesystem vault to safely isolate variables away from system roots
+window.inventoryChamber = window.inventoryChamber || {
+  "storage.json": null, // Primary active serialized repository cache object
+  "storage.adb": "",    // Reconciled read-only abstract database output text stream
+  "checkpoints": []     // Rolling local recovery stack to handle low-end memory drops
+};
+
+// Local transactional execution lock gate
+let isInventoryStateDirty = false;
+
+/**
+ * FIXED DISK WRITE GATEWAY WITH DEBOUNCED LOCK VALVE
+ * Prevents continuous background polling from wearing down low-end performance
+ */
+function saveDatabaseToLocalFiles() {
+  // If no new commands have modified the profile layers, exit immediately without processing
+  if (!isInventoryStateDirty) {
+    return;
+  }
+
+  try {
+    if (!window.cloneMemoryBank) return;
+
+    const structuralSnapshot = {
+      timestamp: new Date().toISOString(),
+      cloneName: typeof cloneAssignedIdentityName !== 'undefined' ? cloneAssignedIdentityName : "CHARLIEBOT",
+      cognitiveMetrics: (window.ImpressiveSandbox && window.ImpressiveSandbox.developmentProfile) 
+        ? window.ImpressiveSandbox.developmentProfile : null,
+      memoryVault: window.cloneMemoryBank
+    };
+
+    window.inventoryChamber["storage.json"] = structuralSnapshot;
+    window.inventoryChamber["storage.adb"]  = JSON.stringify(structuralSnapshot, null, 2);
+
+    localStorage.setItem('inventoryChamber_storage_json', JSON.stringify(window.inventoryChamber["storage.json"]));
+    localStorage.setItem('inventoryChamber_storage_adb', window.inventoryChamber["storage.adb"]);
+
+    let recoveryStack = [];
+    try {
+      const savedStack = localStorage.getItem('inventoryChamber_checkpoints');
+      if (savedStack) recoveryStack = JSON.parse(savedStack);
+    } catch(e) { recoveryStack = []; }
+
+    recoveryStack.unshift({
+      id: "CHK_" + Math.floor(Math.random() * 0x10000).toString(16).toUpperCase(),
+      time: new Date().toLocaleTimeString(),
+      snapshot: structuralSnapshot
+    });
+
+    if (recoveryStack.length > 3) recoveryStack.pop();
+    window.inventoryChamber.checkpoints = recoveryStack;
+    localStorage.setItem('inventoryChamber_checkpoints', JSON.stringify(recoveryStack));
+
+    logHardwareActivity("InventoryChamber", `Active save checkpoint committed securely to storage.json | storage.adb compilation validated.`);
+    triggerHeaderPulseAnimation();
+
+    // CLOSE THE VALVE GATE: State has successfully been synchronized
+    isInventoryStateDirty = false;
+
+  } catch (err) {
+    logHardwareActivity("InventoryChamber", `Write sequence aborted during partition serialization loop.`, true);
+    console.error(err);
+  }
+}
+
+/**
+ * GLOBAL CONTROLLER METHOD TO TRIGGER AN ACTION-BASED SAVE
+ * Call this whenever a command like 'naming', 'restore', or shortcuts run successfully
+ */
+function flagStateChangeForSerialization() {
+  isInventoryStateDirty = true;
+  saveDatabaseToLocalFiles();
+}
+
+/**
+ * 3. ADVANCED VISUAL RETRIEVAL PERFORMANCE ENGINE
+ * Renders full JSON logs from storage.adb alongside checkpoint histories
+ */
+function handleRetrievalEngine() {
+  let report = `=== INVENTORY CHAMBER: AUTOMATED ARCHIVE READOUT ===\n`;
+  report += `VIRTUAL SOURCE PARTITIONS : inventoryChamber/storage.adb\n`;
+  report += `FILE COMPILATION DOMAIN   : application/sandboxed/memory_vault.html\n\n`;
+
+  // 1. Render rolling recovery checkpoints log so developer traces are clear on mobile preview layouts
+  report += `[DEVELOPMENT DISK CHECKPOINT LOGS]\n`;
+  const checkpointLogs = window.inventoryChamber.checkpoints || [];
+  if (checkpointLogs.length === 0) {
+    report += `  NO ACTIVE BACKUP RECOVERY CHECKSUMS GENERATED YET\n\n`;
+  } else {
+    checkpointLogs.forEach((chk, idx) => {
+      report += `  • CHECKPOINT [0${idx+1}] ID: ${chk.id} ➔ TIMESTAMP: ${chk.time} (VERIFIED HEALTHY)\n`;
+    });
+    report += `\n`;
+  }
+
+  // 2. Scan across memory array indices matching your structured layouts
+  const structuredCategories = ['research', 'lyric', 'command', 'naming', 'language', 'word', 'letter', 'term'];
+  
+  report += `[VIRTUAL STORAGE MEMORY RECORDS INDEX]\n`;
+  structuredCategories.forEach(category => {
+    const targetedArray = window.cloneMemoryBank ? (window.cloneMemoryBank[category] || []) : [];
+    report += `  • BANK_${category.toUpperCase().padEnd(9, ' ')} : Logged entries: [${String(targetedArray.length).padStart(2, '0')}]\n`;
+  });
+  report += `\n`;
+
+  // 3. Fallback check: dump string extracts from our direct storage.adb system stream
+  report += `[RAW ABSTRACT DATABASE SEGMENT MATRIX SUMMARY]\n`;
+  if (!window.inventoryChamber["storage.adb"]) {
+    report += `  STORAGE_VOID: No active json logs compiled into storage.adb sector streams.\n`;
+  } else {
+    try {
+      const activeObj = JSON.parse(window.inventoryChamber["storage.adb"]);
+      report += `  • Target Identity Matrix Label : ${activeObj.cloneName || 'UNASSIGNED'}\n`;
+      report += `  • Timestamp Reference Sync ID  : ${activeObj.timestamp || 'VOID'}\n`;
+      report += `  • Linguistic Maturity Rating   : INDEX_${activeObj.cognitiveMetrics ? activeObj.cognitiveMetrics.linguisticMaturityMetric : '??'}\n`;
+    } catch(e) {
+      report += `  • PARSE_WARNING: Reading raw stream characters. Buffer allocation mismatch.\n`;
+    }
+  }
+
+  report += `\n================================================`;
+  
+  if (typeof createTypingBubble === 'function') {
+    createTypingBubble(report);
+  } else {
+    const terminalScreen = document.getElementById('outputScreen');
+    if (terminalScreen) terminalScreen.innerHTML += `<pre style="color:var(--matrix-green); font-size:0.75rem;">${report}</pre>`;
+  }
+}
+
+/**
+ * 4. DYNAMIC ANIMATED TRANSITION CONTROLLER
+ * Applies flash pulses to your identity panel container on updates
+ */
+function triggerHeaderPulseAnimation() {
+  const primaryTitleCard = document.querySelector('.identity-card-click-shield');
+  if (primaryTitleCard) {
+    primaryTitleCard.classList.remove('identity-pulse-active');
+    void primaryTitleCard.offsetWidth; // Force immediate layout reflow recalculation trigger step
+    primaryTitleCard.classList.add('identity-pulse-active');
+  }
+}
+
+
+// Temp variable to store incoming raw text while waiting for popup parameters
+let stagingPayload = "";
+
+/**
+ * UPGRADED HIGH COMMAND MASTER DATA PACK GENERATOR
+ * Generates an automated 30-day index layout utilizing realistic keyword benchmarks
+ */
+function compileHighCommandMonthlyBaseline() {
+  if (!window.cloneMemoryBank) return;
+  
+  if (window.cloneMemoryBank.research.length > 0 || window.cloneMemoryBank.lyric.length > 0) {
+    logHardwareActivity("High Command", "Active historical parameters exist. Aborting baseline layout injection.");
+    return;
+  }
+
+  logHardwareActivity("High Command", "Assembling 30-Day matrix index packs inside inventoryChamber source fields...");
+
+  const coreKeywords = ['muscle', 'frequency', 'breakbeat', 'fluid'];
+
+  for (let day = 1; day <= 30; day++) {
+    const virtualCalendarTag = `DAY-${String(day).padStart(2, '0')}`;
+    // Rotate sequentially through your target terms
+    const selectedKeyword = coreKeywords[(day - 1) % coreKeywords.length];
+
+    // 1. Populate the scientific database bank track
+    window.cloneMemoryBank.research.push({
+      filename: `baseline_cycle_${day}`,
+      line: day,
+      data: `Verified telemetry check on operational keyword token reference: [${selectedKeyword}].`,
+      explanation: `High Command Registry Input | Logged at simulated timeline ${virtualCalendarTag}`
+    });
+
+    // 2. Populate rhythm lyrical metrics
+    if (day % 2 === 0) {
+      window.cloneMemoryBank.lyric.push({
+        filename: `track_session_0${day}`,
+        line: Math.floor(day / 2),
+        data: `initiating system synchronization sequence utilizing keyword rhythm variables ${selectedKeyword} bounce metrics`,
+        assignedMelody: "C4 E4 G4 C5 A4 F4 G4 C4", // Injected mock audio array structures
+        explanation: `Subsystem concentration sync tracking log index | ${virtualCalendarTag}`
+      });
+    }
+  }
+
+  // Set progressive sandbox scoring states directly
+  if (window.ImpressiveSandbox && window.ImpressiveSandbox.developmentProfile) {
+    const prof = window.ImpressiveSandbox.developmentProfile;
+    prof.emotionalSecurityScore = 75;
+    prof.linguisticMaturityMetric = 32;
+    prof.groomingCyclesLogged = 30;
+  }
+
+  // Securely force write actions out into storage.json and storage.adb
+  isInventoryStateDirty = true;
+  saveDatabaseToLocalFiles();
+
+  logHardwareActivity("High Command", "Simulated historical 30-day sample data layers compiled smoothly into storage.adb.");
+}
+
+// UPDATE TO THE CHAT CONTAINER TELEMETRY BADGE SYNC FUNCTION
+// Paste this inside your existing updateStatusIndicator() routine block:
+function updateStatusIndicator() {
+  const badge = document.getElementById('statusIndicator');
+  if (!badge) return;
+
+  // Intercept layout if clone is currently launched into freedom simulation modes
+  if (window.isLifespanSimulationActive) {
+    badge.className = "state-badge mode-lyric";
+    badge.style.border = "1px solid var(--neon-blue)";
+    badge.textContent = "MODE: AUTONOMOUS LIFESPAN SIMULATION ACTIVE [v0.1]";
+    badge.style.color = "var(--neon-blue)";
+    return;
+  }
+
+  // Standard legacy validation checks path fallbacks
+  if (currentAwaitMode && currentAwaitMode !== 'awaiting_recall_target') {
+    const isSci = ['research', 'language', 'term', 'word', 'letter', 'notes', 'collaborate', 'tutor', 'lesson'].includes(currentAwaitMode);
+    badge.className = isSci ? "state-badge mode-science" : "state-badge mode-lyric";
+    badge.textContent = `MODE: AWAITING ${currentAwaitMode.toUpperCase()} STREAM...`;
+    badge.style.color = isSci ? "var(--neon-blue)" : "var(--neon-magenta)";
+  } else if (currentAwaitMode === 'awaiting_recall_target') {
+    badge.className = "state-badge mode-lyric";
+    badge.textContent = "CYPHER: CALLING FOR FILE TARGET...";
+    badge.style.color = "var(--neon-magenta)";
+  } else {
+    badge.className = "state-badge mode-baseline";
+    badge.textContent = "MODE: BASELINE CHAT CYCLES ACTIVE";
+    badge.style.color = "#888";
+    badge.style.border = "1px solid #222";
+  }
+}
+
+// OVERWRITE SPECIFIC FALLBACK FUNCTION SECTION
+function executeStandardFallbackParsing(rawText) {
+  const normalizedText = rawText.toLowerCase();
+  
+  const speechMatrix = typeof Negotiator !== 'undefined' 
+    ? Negotiator.negotiateText(rawText) 
+    : { nouns: [], verbs: [], adjectives: [], leftovers: [] };
+  
+  const currentEngineBPM = typeof currentBPM !== 'undefined' ? currentBPM : 120;
+  
+  // 1. RUN ADVANCED AMYGDALA SIGNAL INJECTOR OVERRIDES
+  const sandboxProfile = (typeof ImpressiveSandbox !== 'undefined') ? ImpressiveSandbox.developmentProfile : null;
+  const emotionProfile = CloneBrain.amygdala.profileLinguisticValence(speechMatrix);
+  const stabilityIndex = CloneBrain.amygdala.calculateMemoryStability(speechMatrix, sandboxProfile);
+
+  // Sync dashboard panel text indicators live
+  const uiBias = document.getElementById('amygdalaCoreBiasText');
+  if (uiBias) {
+    uiBias.textContent = emotionProfile.dominantEmotion;
+    uiBias.style.color = emotionProfile.stateBias === "systemic_tension" ? 'var(--neon-magenta)' : 'var(--matrix-green)';
+  }
+
+  // 2. RUN NEOCORTEX INTEL LOBE CHANNELS
+  let neocortexTelemetry = { sensory: "Stable", spatial: "Stable", transfer: "Ambient" };
+  if (typeof NeocortexProcessor !== 'undefined') {
+    neocortexTelemetry = NeocortexProcessor.processNeocortexLobe(rawText, speechMatrix, emotionProfile.stateBias);
+  }
+
+  // Print complex neural log traces to terminal screens
+  injectGlowNotification(`[AMYGDALA SIGNALS] Value Weight: ${emotionProfile.dominantEmotion} | Fear Sync: ${emotionProfile.fearConditioned}`, 'system-log');
+  injectGlowNotification(`[CORE BALANCER] Hippocampal-Neocortical Memory Stability Index: ${stabilityIndex}%`, 'flash-science');
+
+  // Baseline legacy dictionary search lookups
+  let parsedScience = "Unknown baseline structure";
+  for (let key in scienceLexicon) { if (normalizedText.includes(key)) { parsedScience = scienceLexicon[key]; break; } }
+  let parsedHipHop = "the baseline robotic stance";
+  for (let key in hiphopLexicon) { if (normalizedText.includes(key)) { parsedHipHop = hiphopLexicon[key]; break; } }
+
+  let customizedResponse = "";
+
+  // 3. GENERATE EMOTIONALLY ADJUSTED RESPONSE STRINGS
+  if (emotionProfile.fearConditioned) {
+    customizedResponse = `"${cloneAssignedIdentityName} detected high friction hazard [${emotionProfile.dominantEmotion}]. Fear conditioning matrix locked. Standing by for calming moral tri-element commands, Dada."`;
+  } else {
+    const isConversationalBaseline = (parsedScience === "Unknown baseline structure" && parsedHipHop === "the baseline robotic stance");
+    if (isConversationalBaseline) {
+      if (typeof CloneLifeCycleEngine !== 'undefined') {
+        customizedResponse = CloneLifeCycleEngine.getMaturityFallbackQuote();
+      } else {
+        customizedResponse = "Conversational core active at default baseline processing rules.";
+      }
+    } else {
+      customizedResponse = `ANALYSIS COMPLETE. Scientific lobe tracking: [${parsedScience}]. Hip-hop core holding: [${parsedHipHop}].`;
+    }
+  }
+
+  // Save history entries inside permanent repository files (Hippocampus)
+  if (typeof CloneBrain.hippocampus !== 'undefined' && CloneBrain.hippocampus.commitToMemory) {
+    CloneBrain.hippocampus.commitToMemory(rawText, customizedResponse, { emotionProfile, stabilityIndex });
+  }
+
+  if (typeof NeuroCore !== 'undefined' && NeuroCore.logInteractionAsync) {
+    NeuroCore.logInteractionAsync(rawText, speechMatrix, { emotionProfile, stabilityIndex });
+  }
+
+  if (typeof triggerHardwareShift === 'function') triggerHardwareShift();
+  
+  if (typeof BasalGangliaRhythmLoop !== 'undefined') {
+    BasalGangliaRhythmLoop.startLoop(emotionProfile.stateBias, currentEngineBPM);
+  }
+
+  // --- CONNECT CEREBELLUM MONITOR PIPELINE ---
+  if (typeof ObserverInstinct !== 'undefined') {
+    const activeEmotionStateText = (typeof emotionProfile !== 'undefined') ? emotionProfile.stateBias.toUpperCase() : "BALANCED";
+    const motionFeedback = ObserverInstinct.monitorActuatorWaves(speechMatrix, activeEmotionStateText);
+    
+    // FIXED LINE: Removed stray quote mark to clean function syntax execution
+    injectGlowNotification(motionFeedback.telemetryLog, 'system-log');
+  }
+  
+  createTypingBubble(customizedResponse);
+}
+
+// --- INTERACTION METHOD 2: HARDWARE SHORTCUT COMBO PIPELINE ---
+const activeKeys = {};
+
+window.addEventListener('keydown', (e) => {
+  // Map pressed key states into system array
+  if (e.key === ' ' || e.key === '`') {
+    activeKeys[e.key] = true;
+  }
+
+  // Condition fulfillment check: Spacebar AND Backtick active simultaneously
+  if (activeKeys[' '] && activeKeys['`']) {
+    e.preventDefault(); // Intercept default browser operations
+    
+    // Cycle state sequence: Base -> Await Research -> Await Lyric -> Base
+    if (currentAwaitMode === null) {
+      currentAwaitMode = 'research';
+      injectGlowNotification("[HOTKEY SHORTCUT] System set to target mode: AWAITING RESEARCH DATA", "flash-science");
+    } else if (currentAwaitMode === 'research') {
+      currentAwaitMode = 'lyric';
+      injectGlowNotification("[HOTKEY SHORTCUT] System rotated to target mode: AWAITING LYRIC STREAMS", "flash-lyric");
+    } else {
+      currentAwaitMode = null;
+      injectGlowNotification("[HOTKEY SHORTCUT] Core processing loop returned to baseline chat mode.", "system-log");
+    }
+  }
+});
+
+window.addEventListener('keyup', (e) => {
+  // Flush key registration map tracking matrix clear on release
+  if (e.key === ' ' || e.key === '`') {
+    activeKeys[e.key] = false;
+  }
+});
+function commitFileMetadata() {
+  const fileInput = document.getElementById('modalFileName');
+  const lineInput = document.getElementById('modalLineNum');
+  
+  const filename = fileInput.value.trim() || "untitled_index";
+  let lineNum = parseInt(lineInput.value) || 1;
+  const targetBank = pendingPayload.type;
+
+  // SAFE AUTO-INCREMENT PROTECTION LOOP
+  let lineAvailable = false;
+  while (!lineAvailable) {
+    const collisionIdx = cloneMemoryBank[targetBank].findIndex(
+      item => item.filename.toLowerCase() === filename.toLowerCase() && item.line === lineNum
+    );
+    if (collisionIdx !== -1) {
+      lineNum++; // Shift slot tracking upward cleanly if position collision occurs
+    } else {
+      lineAvailable = true;
+    }
+  }
+
+  // Push safe validated data block object
+  cloneMemoryBank[targetBank].push({
+    filename: filename,
+    line: lineNum,
+    data: pendingPayload.data
+  });
+
+  cloneMemoryBank[targetBank].sort((a, b) => a.line - b.line);
+  document.getElementById('metaModal').style.display = 'none';
+
+  // LOGICAL AUDIO NOTES MATRIX BLENDER LAYER
+  if (targetBank === 'notes') {
+    const lyricMatch = cloneMemoryBank.lyric.find(l => l.filename.toLowerCase() === filename.toLowerCase());
+    if (lyricMatch) {
+      lyricMatch.assignedMelody = pendingPayload.data;
+      injectGlowNotification(`[BLENDER MATRIX ACTIVE] Melodic data mapped directly onto lyric file "${filename}" at Line ${lineNum}.`, 'flash-lyric');
+    } else {
+      injectGlowNotification(`[BLENDER] Notes saved to standalone profile "${filename}" at Line ${lineNum}.`, 'flash-science');
+    }
+  } else {
+    const targetGlowClass = targetBank === 'research' ? 'flash-science' : 'flash-lyric';
+    injectGlowNotification(`[TRANSACTION VERIFIED] Logged to ${targetBank.toUpperCase()} -> File: ${filename} | Line: ${lineNum}`, targetGlowClass);
+  }
+
+  // Reset staging matrices safely
+  pendingPayload = { type: null, data: null };
+  currentAwaitMode = null;
+  fileInput.value = "";
+  lineInput.value = "";
+  updateStatusIndicator();
+}
+let performanceActive = false;
+let subtitleIntervalId = null;
+
+function executeRecallPerformance(targetFilename) {
+  const matchedEntry = cloneMemoryBank.lyric.find(item => item.filename.toLowerCase() === targetFilename.toLowerCase());
+
+  if (!matchedEntry) {
+    createTypingBubble(`CRITICAL FAULT: Target identifier "${targetFilename}" could not be verified inside current records.`);
+    currentAwaitMode = null; updateStatusIndicator();
+    return;
+  }
+
+  const stage = document.querySelector('.lab-stage');
+  if (stage) stage.classList.add('fullscreen-blinder');
+  
+  const subBox = document.getElementById('karaokeSubtitles');
+  const subText = document.getElementById('subtitleText');
+  const trackStatus = document.getElementById('audioTrackStatus');
+  if (subBox) subBox.style.display = 'block';
+
+  grooveActive = true;
+  const bot = document.getElementById('cloneBot');
+  if (bot) bot.classList.add('bounce');
+  if (typeof runPhysicalActuators === 'function') runPhysicalActuators();
+
+  performanceActive = true;
+  const wordsArray = matchedEntry.data.split(' ');
+  const notesArray = matchedEntry.assignedMelody ? matchedEntry.assignedMelody.split(' ') : [];
+  
+  if (trackStatus) {
+    trackStatus.textContent = notesArray.length > 0 ? `[AUDIO SYNC ACTIVE: ${matchedEntry.filename.toUpperCase()} @ ${currentBPM} BPM]` : `[MUTED CAPTION RUN @ ${currentBPM} BPM]`;
+  }
+
+  let wordIndex = 0;
+  tempo = 0;
+
+  function runSubtitles() {
+    if (!performanceActive) return;
+
+    if (wordIndex < wordsArray.length) {
+      const currentWord = wordsArray[wordIndex];
+      if (subText) subText.textContent = currentWord.toUpperCase();
+
+      // Synthesize note tone mapped directly via calibrated BPM speed ratios
+      if (notesArray.length > 0 && typeof SynthEngine !== 'undefined' && SynthEngine.ctx) {
+        const currentNoteString = notesArray[wordIndex % notesArray.length];
+        SynthEngine.playNote(currentNoteString, SynthEngine.ctx.currentTime, currentBPM);
+      }
+
+      tempo += currentWord.length * 0.2;
+      wordIndex++;
+
+      // CALCULATE TIMING DELAYS MODULATED BY CURRENT SYSTEM BPM CONFIGURATION VALUE
+      const baseBeatMs = (60 / currentBPM) * 1000;
+      const wordDelay = Math.max(baseBeatMs * 0.7, currentWord.length * 90);
+
+      subtitleIntervalId = setTimeout(runSubtitles, wordDelay);
+    } else {
+      if (subText) subText.textContent = "— TRACK DISCHARGED —";
+      setTimeout(terminatePerformanceLoop, 1500);
+    }
+  }
+
+  runSubtitles();
+}
+
+function terminatePerformanceLoop() {
+  performanceActive = false;
+  grooveActive = false;
+  clearTimeout(subtitleIntervalId);
+
+  // Clear dynamic full screen display rules
+  const stage = document.querySelector('.lab-stage');
+  stage.classList.remove('fullscreen-blinder');
+  
+  const exitBtn = document.getElementById('exitPerformanceBtn');
+  if (exitBtn) exitBtn.remove();
+
+  // Hide tracking subtitle marquee interface
+  document.getElementById('karaokeSubtitles').style.display = 'none';
+
+  // Restore mechanical anchor properties back down to base resting configuration values
+  const bot = document.getElementById('cloneBot');
+  if (bot) bot.classList.remove('bounce');
+  
+  document.getElementById('myofiber').style.transform = 'scaleY(1)';
+  document.getElementById('leftArm').style.transform = 'rotate(0deg)';
+  document.getElementById('rightArm').style.transform = 'rotate(0deg)';
+
+  currentAwaitMode = null;
+  updateStatusIndicator();
+}
+
+// Hook browser hardware escape key directly into tracking controls loop termination routine
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && performanceActive) {
+    terminatePerformanceLoop();
+  }
+});
+
+// PROCEDURAL AUDIO SYNTHESIZER
+const SynthEngine = {
+  ctx: null,
+  activeOscillators: [],
+
+  // Map Nokia-style alpha notes to absolute mathematical audio frequencies
+  frequencies: {
+    'c': 261.63, 'c#': 277.18, 'd': 293.66, 'd#': 311.13, 'e': 329.63, 'f': 349.23,
+    'f#': 369.99, 'g': 392.00, 'g#': 415.30, 'a': 440.00, 'a#': 466.16, 'b': 493.88
+  },
+
+  init() {
+    if (!this.ctx) {
+      // Audio engine initialization
+      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+  },
+
+  // Parse single nokia note block (e.g., "4d#2")
+  playNote(noteStr, startTime, tempoBPM = 120) {
+    this.init();
+    const match = noteStr.toLowerCase().match(/^(\d+)([a-g]#?)(\d+)$/);
+    if (!match) return 0; // Return zero duration if block contains formatting error
+
+    const [_, durationValue, noteName, octaveValue] = match;
+    
+    // Calculate precise chronological time metrics
+    const beatDuration = 60 / tempoBPM;
+    const actualDuration = (4 / parseInt(durationValue)) * beatDuration;
+
+    // Map base frequency to target octave multiplier offset
+    let baseFreq = this.frequencies[noteName];
+    const octaveMultiplier = Math.pow(2, parseInt(octaveValue) - 1);
+    const finalFrequency = baseFreq * octaveMultiplier;
+
+    // Structural audio oscillator wiring
+    const osc = this.ctx.createOscillator();
+    const gainNode = this.ctx.createGain();
+
+    osc.type = 'square'; // Nostalgic 8-bit chip sound architecture
+    osc.frequency.setValueAtTime(finalFrequency, startTime);
+
+    // Fast volume envelope curves to manage signal pops
+    gainNode.gain.setValueAtTime(0.15, startTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.0001, startTime + actualDuration - 0.02);
+
+    osc.connect(gainNode);
+    gainNode.connect(this.ctx.destination);
+
+    osc.start(startTime);
+    osc.stop(startTime + actualDuration);
+
+    this.activeOscillators.push(osc);
+    return actualDuration;
+  },
+
+  // CRITICAL EMERGENCY SYSTEM COMMAND: Instantly silences audio feedback
+  killAllSounds() {
+    if (this.ctx) {
+      this.activeOscillators.forEach(osc => { try { osc.stop(); } catch(e){} });
+      this.activeOscillators = [];
+      injectGlowNotification("[AUDIO INTERCEPT] Emergency circuit triggered. Background audio signals terminated.", "system-log");
+    }
+  }
+};
+
+
+  </script>
+  <!-- STANDALONE INDEX LIFECYCLE CONTROLLER -->
+<script>
+// Global function to trigger and handle the purge operation
+function initializePurgeRoutine() {
+  const progressModal = document.getElementById('wipeProgressModal');
+  const progressBarFill = document.getElementById('wipeProgressBarFill');
+  const progressPercentage = document.getElementById('wipeProgressPercentage');
+  const amendModal = document.getElementById('amendModal');
+
+  // Display the wipe progress modal
+  progressModal.style.display = 'flex';
+  
+  let progress = 0;
+  const totalDuration = 3000; // Total loading time in milliseconds (3 seconds)
+  let startTime = null;
+
+  // Frame-by-frame rendering loop optimized for low-end device screens
+  function animateProgress(timestamp) {
+    if (!startTime) startTime = timestamp;
+    const elapsed = timestamp - startTime;
+
+    // Calculate smooth percentage progress based on time elapsed
+    progress = Math.min((elapsed / totalDuration) * 100, 100);
+
+    // Render updates efficiently to the DOM elements
+    progressBarFill.style.width = `${progress}%`;
+    progressPercentage.textContent = `${Math.floor(progress)}%`;
+
+    if (progress < 100) {
+      // Continue animation loop if not finished
+      requestAnimationFrame(animateProgress);
+    } else {
+      // Sequence completed: Close loading screen and clear for the amend screen
+      setTimeout(() => {
+        progressModal.style.display = 'none';
+        amendModal.style.display = 'flex';
+      }, 300); // Short delay for user experience payoff
+    }
+  }
+
+  // Fire frame updates
+  requestAnimationFrame(animateProgress);
+}
+
+// Callback execution function placeholder for your buttons
+function finalizeIdentityAmendment(isConfirmed) {
+  if (isConfirmed) {
+    console.log("Identity matrix change successfully applied.");
+    // Add your subsequent bot initialization logic or page redirects here
+  } else {
+    console.log("Calibration canceled by user.");
+  }
+}
+
+// Execute the animation as soon as the DOM finishes loading
+window.addEventListener('DOMContentLoaded', () => {
+  initializePurgeRoutine();
+});
+
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log("[INDEX WORKSPACE] Evaluating initial boot sequence parameters...");
+    
+    // 1. Force the central LogicTracker boot loop to merge cached user variables instantly on load
+    if (window.logicTracker && typeof window.logicTracker.initAndSyncBootMatrix === 'function') {
+      window.logicTracker.initAndSyncBootMatrix();
+    } else if (typeof window.autoDatabaseSyncFromCache === 'function') {
+      window.autoDatabaseSyncFromCache();
+    }
+
+    // 2. Initialize real-time UI button counter configurations right inside the panel display
+    if (typeof window.updateStorageButtonCounters === 'function') {
+      window.updateStorageButtonCounters();
+    }
+    
+    // 3. Keep the input telemetry tracker field clear and focused on startup
+    const textBar = document.getElementById('userInput');
+    if (textBar) {
+      textBar.focus();
+    }
+  });
+  // Automatically lift profile states back to hardware cache baseline registries on reboot
+(function restoreCognitiveHardwareProfiles() {
+  try {
+    const cachedSandboxData = localStorage.getItem('charliebot_sandbox_profile');
+    if (cachedSandboxData && window.ImpressiveSandbox && window.ImpressiveSandbox.developmentProfile) {
+      window.ImpressiveSandbox.developmentProfile = JSON.parse(cachedSandboxData);
+      console.log("[SANDBOX RESTORED] Cognitive states synced perfectly from physical cache blocks.");
+    }
+  } catch (err) {
+    console.warn("Cognitive matrix validation loader bypassed:", err);
+  }
+})();
+
+/**
+ * 1. REAL-TIME BUG LOG INJECTOR
+ * Prints descriptive hardware logs straight into the visual interface screen.
+ */
+function logHardwareActivity(moduleTag, operationalStatus, isError = false) {
+  const terminalScreen = document.getElementById('outputScreen');
+  if (!terminalScreen) return;
+
+  const hexStamp = Math.floor(Math.random() * 0xFFFFFF).toString(16).toUpperCase().padStart(6, '0');
+  const alertTheme = isError ? 'var(--neon-magenta)' : 'var(--neon-blue)';
+  const badgeTheme = isError ? 'rgba(255,0,127,0.1)' : 'rgba(0,242,255,0.05)';
+
+  const dynamicLogNode = document.createElement('div');
+  dynamicLogNode.className = 'system-log trace-activity-pulse';
+  dynamicLogNode.style.cssText = `
+    border-left: 3px solid ${alertTheme}; 
+    background: ${badgeTheme}; 
+    padding: 6px 10px; 
+    margin: 6px 0; 
+    font-size: 0.7rem; 
+    color: #888; 
+    font-family: monospace;
+    border-radius: 2px;
+  `;
+  
+  dynamicLogNode.innerHTML = `
+    <span style="color:${alertTheme}; font-weight:bold;">[${moduleTag.toUpperCase()}]</span> 
+    REF_ID:#${hexStamp} ➔ ${operationalStatus}
+  `;
+
+  terminalScreen.appendChild(dynamicLogNode);
+  terminalScreen.scrollTop = terminalScreen.scrollHeight;
+}
+
+/**
+ * 2. INTERACTIVE IDENTITY MATRIX POPUP WINDOW
+ * Fires dynamic alerts mapped cleanly out of the clickable title card panel wrapper.
+ */
+function triggerIdentityDocumentationPopup() {
+  const explicitRobotIdentity = typeof cloneAssignedIdentityName !== 'undefined' ? cloneAssignedIdentityName : "CHARLIEBOT";
+  const cognitiveRating = (window.ImpressiveSandbox && window.ImpressiveSandbox.developmentProfile) 
+    ? window.ImpressiveSandbox.developmentProfile.emotionalSecurityScore : 50;
+  
+  let documentationSummary = `=== IDENTITY DOCUMENTATION ACCESS GRANTED ===\n\n`;
+  documentationSummary += `  • COGNITIVE MODEL NAME : ${explicitRobotIdentity.toUpperCase()}\n`;
+  documentationSummary += `  • BASE RECONCILED LAYER: ARCHITECTURE: CHRONICLE_CLONE\n`;
+  documentationSummary += `  • SYSTEM SECURITY VALUE: SECTOR_RATING: ${cognitiveRating}%\n`;
+  documentationSummary += `  • FILE STORAGE SNAPSHOT: TOTAL_VAULT_BANKS: 8 DIRECTORIES\n\n`;
+  documentationSummary += `============================================`;
+  
+  logHardwareActivity("Identity Core", "User requested documentation credentials inspection.");
+  if (typeof createTypingBubble === 'function') {
+    createTypingBubble(documentationSummary);
+  } else {
+    alert(documentationSummary);
+  }
+}
+
+/**
+ * 3. ADVANCED GLOBAL INITIALIZATION SYNCHRONIZER
+ * Restores client labels and hooks the core system command intercepts safely.
+ */
+function synchronizeActiveCloneInterface() {
+  // Pull current profile naming records dynamically
+  const explicitRobotIdentity = typeof cloneAssignedIdentityName !== 'undefined' ? cloneAssignedIdentityName : "CHARLIEBOT";
+  
+  // Upgraded name generator engine hook changing the H1 title tags layout natively
+  const titleDisplayElement = document.getElementById('masterAppTitle');
+  if (titleDisplayElement) {
+    titleDisplayElement.innerHTML = `${explicitRobotIdentity.toUpperCase()}: <span style="font-size:1.1rem; color:#555;">CHRONICLECLONE</span>`;
+  }
+
+  // Intercept and patch the global launch tracking loop routines safely
+  const standardInputPipeline = window.processInput;
+  
+  window.processInput = function() {
+    const inputConsoleElement = document.getElementById('userInput');
+    const typedTextString = inputConsoleElement ? inputConsoleElement.value.trim() : '';
+    const lowCasedQuery = typedTextString.toLowerCase();
+
+    // intercept the active operational LAUNCH keyword command explicitly
+    if (lowCasedQuery === 'launch') {
+      logHardwareActivity("Runtime Gate", "Intercepting 'LAUNCH' macro token execution sequence.");
+      
+      if (inputConsoleElement) inputConsoleElement.value = '';
+      
+      // Update UI state badges matching active system loading routines
+      const labelBadgeIndicator = document.getElementById('statusIndicator');
+      if (labelBadgeIndicator) {
+        labelBadgeIndicator.textContent = "MODE: PURGE CALIBRATION INSTANCE RUNNING";
+        labelBadgeIndicator.style.color = "var(--neon-magenta)";
+        labelBadgeIndicator.style.borderColor = "var(--neon-magenta)";
+      }
+
+      // Execute smooth boot loading progress routines built inside section 1
+      if (typeof initializePurgeRoutine === 'function') {
+        logHardwareActivity("Wipe Engine", "Spawning structural time-calculated layout loading frames.");
+        initializePurgeRoutine();
+      } else {
+        logHardwareActivity("Wipe Engine", "Purge loading frame sub-routine layer unavailable.", true);
+        alert("[CORE EXCURSION ERROR] Sequencer loader module is detached.");
+      }
+      return; // Stop the engine from slipping execution down into fallback channels
+    }
+
+    // Pass any other textual queries through seamlessly to old checking lines
+    if (typeof standardInputPipeline === 'function') {
+      standardInputPipeline();
+    }
+  };
+
+  logHardwareActivity("NeoCore Boot", "Identity naming engines and launch overrides successfully initialized.");
+}
+
+// Wire configuration checks directly onto your app document loading windows
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', synchronizeActiveCloneInterface);
+} else {
+  synchronizeActiveCloneInterface();
+}
+
+/**
+ * MASTER HIGH COMMAND GENERATOR ENGINE
+ * Automatically builds simulated historical data loops equivalent to one complete operational month
+ */
+function compileHighCommandMonthlyBaseline() {
+  // Only inject large simulated histories if our active database is blank or newly loaded
+  if (window.cloneMemoryBank.research.length > 0 || window.cloneMemoryBank.lyric.length > 0) {
+    logHardwareActivity("High Command", "Active operational records exist. Skipping monthly mock baseline assembly.");
+    return;
+  }
+
+  logHardwareActivity("High Command", "Compiling simulated monthly baseline dataset package inside inventoryChamber slots...");
+
+  // Generate 30 sequential calendar items across various directory sub-indices
+  for (let day = 1; day <= 30; day++) {
+    const virtualTimeStampString = `Day-${String(day).padStart(2, '0')}`;
+    
+    // Distribute records smoothly down target bank slots
+    window.cloneMemoryBank.research.push({
+      filename: `baseline_cycle_${day}`,
+      line: day,
+      data: `Simulated daily telemetric stability check for cycle sequence ${day * 12}.`,
+      explanation: `High Command Registry Input | Logged at simulated operational timeline ${virtualTimeStampString}`
+    });
+
+    if (day % 3 === 0) {
+      window.cloneMemoryBank.lyric.push({
+        filename: `rhythm_groove_${day}`,
+        line: Math.floor(day / 3),
+        data: `breakbeat pattern variance metric level evaluated at ${120 + day} BPM.`,
+        explanation: `Subsystem concentration sync tracking log index | ${virtualTimeStampString}`
+      });
+    }
+  }
+
+  // Upgrade baseline cognitive stats to resemble a seasoned maturity model state
+  if (window.ImpressiveSandbox && window.ImpressiveSandbox.developmentProfile) {
+    const prof = window.ImpressiveSandbox.developmentProfile;
+    prof.emotionalSecurityScore = 85; 
+    prof.linguisticMaturityMetric = 45;
+    prof.groomingCyclesLogged = 30; // Equivalent to one full month of calibration step iterations
+  }
+
+  // Force an immediate file commit down into the storage.adb text stream fields
+  isInventoryStateDirty = true;
+  saveDatabaseToLocalFiles();
+  
+  logHardwareActivity("High Command", "30-Day simulated operational tracking records baseline injected into memory structures.");
+}
+
+// Attach the command baseline loop trigger inside your DOM lifecycle checking lines
+window.addEventListener('DOMContentLoaded', () => {
+  // Ensure the main data channel is initialized first, then deploy dataset profiles
+  setTimeout(compileHighCommandMonthlyBaseline, 1200); 
+});
+
+</script>
+<script src="negotiator.js"></script>
+<script src="neo_core.js"></script>
+</body>
+</html>
